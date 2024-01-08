@@ -2,7 +2,6 @@ numpy
 EMD_signal
 ewtpy
 matplotlib
-numpy==1.22.3
 padasip==1.2.2
 pandas
 PyEMD==1.0.0
@@ -17,3 +16,4 @@ tftb
 tqdm
 ssqueezepy
 numba
+jupyter
