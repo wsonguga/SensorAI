@@ -17,3 +17,4 @@ tqdm
 ssqueezepy
 numba
 jupyter
+h5py

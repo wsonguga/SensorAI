@@ -5,7 +5,7 @@ import numpy as np
 from numpy.fft import fft, ifft, fftfreq
 import scipy
 import scipy.signal
-from scipy.signal import butter, lfilter, iirnotch, correlate, welch, find_peaks
+from scipy.signal import butter, lfilter, iirnotch, correlate, welch, find_peaks, argrelextrema
 from scipy.interpolate import interp1d
 from scipy.fft import fft, ifft
 from scipy.stats import entropy
@@ -34,6 +34,90 @@ def load_demo(noise_level=0, signal_idx=0):
     time = np.linspace(0, duration, sampling_rate * duration, endpoint=False)
 
     return signal, time, duration, sampling_rate
+
+# scg Dataloader
+def scg(duration=10, sampling_rate=100, heart_rate_min=50, heart_rate_max=150, respiratory=True,
+        respiratory_rate_min=10, respiratory_rate_max=30, s_min=90, s_max=140, d_min=60, d_max=100):
+    """
+    Description:
+        A function to generate a scg signal
+    Args:
+        duration: length of the signal (second)
+        sampling_rate: (Hz)
+        heart_rate_min: the min heart rate (beats/minute)
+        heart_rate_max: the max heart rate (beats/minute)
+        respiratory: whether to add the respiratory signal
+        respiratory_rate_min: the min respiratory rate (cycles/minute)
+        respiratory_rate_max: the max respiratory rate (cycles/minute)
+        s_min: the min systolic
+        s_max: the max systolic
+        d_min: the min diastolic
+        d_max: the max diastolic
+    Returns:
+        A scg signal
+    """
+    length = duration * sampling_rate
+    respiratory_rate = random.randint(respiratory_rate_min,respiratory_rate_max)
+    diastolic = random.randint(d_min,d_max)
+    systolic = random.randint(s_min,s_max)
+    heart_rate = random.randint(heart_rate_min,heart_rate_max)
+
+    # generate the basic waveform of scg
+    ind = random.randint(17,34)
+    cardiac_s = scipy.signal.daub(ind)
+    cardiac_d = scipy.signal.daub(ind) * 0.3 * diastolic / 80  # change height
+
+    # make sure the length is 100
+    cardiac_s = scipy.signal.resample(cardiac_s, 100)
+    cardiac_d = scipy.signal.resample(cardiac_d, 100)
+
+    # take the first 40 timestamps as cardiac_s
+    cardiac_s = cardiac_s[0:40]
+
+    # determine the length of gap depending on systolic (S)
+    distance = 180 - systolic
+    zero_signal = np.zeros(distance)
+
+    # concatenate the three parts as a period: cardiac_s + gap + cardiac_d
+    cardiac = np.concatenate([cardiac_s, zero_signal, cardiac_d])
+
+    cardiac_length = int(100 * sampling_rate / heart_rate)
+    cardiac = scipy.signal.resample(cardiac, cardiac_length)  # fix every cardiac length to 1000/heart_rate
+
+    # Caculate the number of beats in 10 seconds
+    num_heart_beats = int(duration * heart_rate / 60)  # if hr = 70, the num_heart_beats = 11
+
+    scg = np.tile(cardiac, num_heart_beats)
+    scg = signal_resample(
+        scg, sampling_rate=int(len(scg) / 10), desired_length=length, desired_sampling_rate=sampling_rate
+    )
+
+    if respiratory:
+        ### add rr
+        num_points = duration * sampling_rate
+        x_space = np.linspace(0, 1, num_points)
+        seg_fre = respiratory_rate / (60 / duration)
+        seg_amp = max(scg) * 0.00001
+        rr_component = seg_amp * np.sin(2 * np.pi * seg_fre * x_space)
+        scg *= (rr_component + 2 * seg_amp)
+
+    return scg
+
+def signal_resample(signal, desired_length=None, sampling_rate=None, desired_sampling_rate=None, method="interpolation"):
+    if desired_length is None:
+        desired_length = int(np.round(len(signal) * desired_sampling_rate / sampling_rate))
+    # Sanity checks
+    if len(signal) == desired_length:
+        return signal
+    # Resample
+    resampled = _resample_interpolation(signal, desired_length)
+    return resampled
+
+def _resample_interpolation(signal, desired_length):
+    resampled_signal = scipy.ndimage.zoom(signal, desired_length / len(signal))
+    return resampled_signal
+
+
 
 # ==============================================================================
 # ------------------------------------Waves-------------------------------------
