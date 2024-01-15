@@ -4,7 +4,6 @@ ewtpy
 matplotlib
 padasip==1.2.2
 pandas
-PyEMD==1.0.0
 PyWavelets
 scikit_learn
 scipy
@@ -17,3 +16,4 @@ tqdm
 ssqueezepy
 numba
 jupyter
+h5py
