@@ -21,23 +21,23 @@ from PyEMD import EEMD, EMD, CEEMDAN
 from vmdpy import VMD
 from pylab import (arange, flipud, linspace, cos, pi, log, hanning,
                    ceil, log2, floor, empty_like, fft, ifft, fabs, exp, roll, convolve)
-from Dataset import load_scg
+# from Dataset import load_scg
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from fastsst import SingularSpectrumTransformation
 
-def load_demo(noise_level=0, signal_idx=0):
-
-    signals_clean, labels_clean, duration, fs = load_scg(noise_level, 'train')
-    signal = signals_clean[signal_idx]
-    sampling_rate = fs
-    time = np.linspace(0, duration, sampling_rate * duration, endpoint=False)
-
-    return signal, time, duration, sampling_rate
+# def load_demo(noise_level=0, signal_idx=0):
+#
+#     signals_clean, labels_clean, duration, fs = load_scg(noise_level, 'train')
+#     signal = signals_clean[signal_idx]
+#     sampling_rate = fs
+#     time = np.linspace(0, duration, sampling_rate * duration, endpoint=False)
+#
+#     return signal, time, duration, sampling_rate
 
 # scg Dataloader
-def scg(duration=10, sampling_rate=100, heart_rate_min=50, heart_rate_max=150, respiratory=True,
-        respiratory_rate_min=10, respiratory_rate_max=30, s_min=90, s_max=140, d_min=60, d_max=100):
+def scg(duration=10, sampling_rate=100, heart_rate_min=50, heart_rate_max=150, s_min=90, s_max=140,
+        d_min=60, d_max=100, respiratory=True, respiratory_rate_min=10, respiratory_rate_max=30):
     """
     Description:
         A function to generate a scg signal
