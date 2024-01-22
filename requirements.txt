@@ -1,11 +1,17 @@
 numpy
+sys
+os
+re
+enum
 EMD_signal
 ewtpy
 matplotlib
 padasip==1.2.2
 pandas
+pytz
 PyWavelets
 scikit_learn
+sktime
 scipy
 seaborn
 statsmodels==0.13.5
@@ -17,3 +23,5 @@ ssqueezepy
 numba
 jupyter
 h5py
+chart_studio
+plotly
