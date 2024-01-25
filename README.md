@@ -26,7 +26,7 @@ tutorial_dsp: https://colab.research.google.com/drive/1WD5ZgH6lCivpNokteBM6Jpvqy
                      |
                      v
         +----------------------------------+
-        |      Feature Representation      |
+        |   Feature Selection/Synthesis    |
         +----------------------------------+
                      |
                      v
