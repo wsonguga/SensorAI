@@ -643,7 +643,7 @@ def add_colored_noise(signal, noise_amplitude=0.3, model='white', sampling_rate=
 
     if show:
         # If requested, plot the original and noisy signals
-        plot_noise_signal(signal, noisy_signal, 'Add Colored Noise')
+        plot_noise_signal(signal, noisy_signal, 'Add ' + model.capitalize() + ' Noise')
 
     return noisy_signal
 
