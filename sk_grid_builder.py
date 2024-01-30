@@ -2,6 +2,9 @@ from math import radians
 import numpy as np
 import matplotlib.pyplot as plt
 
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
+
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn.datasets import make_moons, make_circles, make_classification
