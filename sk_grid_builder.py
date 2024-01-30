@@ -49,7 +49,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test):
 #def gridsearch_clustering(names,pipes,X_train,X_test,y_train,y_test):
 def gridsearch_clustering(names,pipes,X,y):
   for j in range(len(names)):
-      x_classes = int(np.amax(x)+1)
+      x_classes = int(np.amax(X)+1)
       y_classes = int(np.amax(y)+1)
       if x_classes > y_classes:
           n_classes = x_classes
