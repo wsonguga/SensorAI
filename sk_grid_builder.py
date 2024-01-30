@@ -22,6 +22,7 @@ from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, Bagging
 from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB, ComplementNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis, LinearDiscriminantAnalysis
 from sklearn.neural_network import BernoulliRBM
+from sklearn.metrics.cluster import adjusted_rand_score, rand_score, mutual_info_score, normalized_mutual_info_score
 
 from plotly.subplots import make_subplots
 
@@ -45,29 +46,43 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test):
 
 
 # iterate over cluterers
-def gridsearch_clustering(names,pipes,X_train,X_test,y_train,y_test):
+#def gridsearch_clustering(names,pipes,X_train,X_test,y_train,y_test):
+def gridsearch_clustering(names,pipes,X,y):
   for j in range(len(names)):
-      n_classes = int(np.amax(y_train)+1)
-      x_axis = np.arange(len(X_train[0]))
+      x_classes = int(np.amax(x)+1)
+      y_classes = int(np.amax(y)+1)
+      if x_classes > y_classes:
+          n_classes = x_classes
+      else:
+          n_classes = y_classes  
+      x_axis = np.arange(len(X[0]))
       fig = make_subplots(rows=n_classes, cols=2)
 
       grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring='neg_mean_squared_error',cv=5, verbose=1, n_jobs=-1)
-      grid_search.fit(X_train, y_train)
-      score = grid_search.score(X_test, y_test)
+      grid_search.fit(X, y)
+      score = grid_search.score(X, y)
       print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
       print(grid_search.best_params_)
-      y_pred = grid_search.predict(X_test)
-      print(classification_report(y_test, y_pred))
+      #y_pred = grid_search.predict(X_test)
+      #print(classification_report(y_test, y_pred))
+      ari = adjusted_rand_score(grid_search.best_estimator_.labels_,y)
+      ri = adjusted_rand_score(grid_search.best_estimator_.labels_,y)
+      mi = normalized_mutual_info_score(grid_search.best_estimator_.labels_,y)
+      nmi = normalized_mutual_info_score(grid_search.best_estimator_.labels_,y)
+      print("Rand Index (RI) = ",ri)
+      print("Adjusted Rand Index (ARI) = ",ari)
+      print("Mutual Information (MI) = ",mi)
+      print("Mutual Information (MI) = ",nmi)
       
       count = 0
-      while count < len(y_pred):
+      while count < len(y):
           fig.add_trace(
-              go.Scatter(x=x_axis,y=X_test[count]),
-              row=int(y_pred[count])+1, col=1
+              go.Scatter(x=x_axis,y=X[count]),
+              row=int(y[count])+1, col=1
           )
           fig.add_trace(
-              go.Scatter(x=x_axis, y=X_test[count]),
-              row=int(y_test[count])+1, col=2
+              go.Scatter(x=x_axis, y=X[count]),
+              row=int(y[count])+1, col=2
           )
           count = count + 1
       fig.update_layout(title_text = names[j]+": Predicted vs Truth")
