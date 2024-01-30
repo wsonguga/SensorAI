@@ -60,7 +60,7 @@ def gridsearch_clustering(names,pipes,X,y):
 
       grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring='neg_mean_squared_error',cv=5, verbose=1, n_jobs=-1)
       grid_search.fit(X, y)
-      score = grid_search.score(X, y)
+      #score = grid_search.score(X, y)
       print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
       print(grid_search.best_params_)
       #y_pred = grid_search.predict(X_test)
