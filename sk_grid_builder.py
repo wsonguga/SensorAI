@@ -47,7 +47,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test):
 
 # iterate over cluterers
 #def gridsearch_clustering(names,pipes,X_train,X_test,y_train,y_test):
-def gridsearch_clustering(names,pipes,X,y):
+def gridsearch_clustering(names,pipes,X,y,scoring):
   for j in range(len(names)):
       x_classes = int(np.amax(X)+1)
       y_classes = int(np.amax(y)+1)
@@ -58,21 +58,13 @@ def gridsearch_clustering(names,pipes,X,y):
       x_axis = np.arange(len(X[0]))
       fig = make_subplots(rows=n_classes, cols=2)
 
-      grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring='neg_mean_squared_error',cv=5, verbose=1, n_jobs=-1)
+      grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
       grid_search.fit(X, y)
       #score = grid_search.score(X, y)
       print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
       print(grid_search.best_params_)
       #y_pred = grid_search.predict(X_test)
       #print(classification_report(y_test, y_pred))
-      ari = adjusted_rand_score(grid_search.best_estimator_.labels_,y)
-      ri = adjusted_rand_score(grid_search.best_estimator_.labels_,y)
-      mi = normalized_mutual_info_score(grid_search.best_estimator_.labels_,y)
-      nmi = normalized_mutual_info_score(grid_search.best_estimator_.labels_,y)
-      print("Rand Index (RI) = ",ri)
-      print("Adjusted Rand Index (ARI) = ",ari)
-      print("Mutual Information (MI) = ",mi)
-      print("Mutual Information (MI) = ",nmi)
       
       count = 0
       while count < len(y):
