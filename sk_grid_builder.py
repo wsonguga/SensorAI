@@ -63,6 +63,7 @@ def gridsearch_clustering(names,pipes,X,y,scoring):
       #score = grid_search.score(X, y)
       print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
       print(grid_search.best_params_)
+      print("Best "+scoring+"score: ",grid_search.best_score_)
       #y_pred = grid_search.predict(X_test)
       #print(classification_report(y_test, y_pred))
       
