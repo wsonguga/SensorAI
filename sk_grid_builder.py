@@ -48,6 +48,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test):
 def gridsearch_clustering(names,pipes,X_train,X_test,y_train,y_test):
   for j in range(len(names)):
       n_classes = int(np.amax(y_train)+1)
+      x_axis = np.arange(len(X_train[0]))
       fig = make_subplots(rows=n_classes, cols=2)
 
       grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring='neg_mean_squared_error',cv=5, verbose=1, n_jobs=-1)
