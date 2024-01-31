@@ -94,6 +94,7 @@ def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='accu
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
         print(grid_search.best_params_)
         y_pred = grid_search.predict(X_test)
-        #print(classification_report(y_test, y_pred))
-        #ConfusionMatrixDisplay.from_estimator(grid_search, X_test, y_test, xticks_rotation="vertical")
+        
+        plt.scatter(y_pred, y_test)
+        plt.show()
     return
