@@ -26,7 +26,7 @@ from sklearn.metrics.cluster import adjusted_rand_score, rand_score, mutual_info
 
 from plotly.subplots import make_subplots
 
-def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test):
+def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_mean_squared_error'):
     # iterate over classifiers
     for j in range(len(names)):
 
@@ -34,7 +34,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test):
         #now = today.strftime("%b-%d-%Y")
         #save_file = str(names[j]) + '-' + str(now) + '-HeatMap.png'
 
-        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring='neg_mean_squared_error',cv=5, verbose=1, n_jobs=-1)
+        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
         grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
@@ -47,7 +47,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test):
 
 # iterate over cluterers
 #def gridsearch_clustering(names,pipes,X_train,X_test,y_train,y_test):
-def gridsearch_clustering(names,pipes,X,y,scoring):
+def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
   for j in range(len(names)):
       x_classes = int(np.amax(X)+1)
       y_classes = int(np.amax(y)+1)
