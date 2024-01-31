@@ -44,10 +44,8 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
         ConfusionMatrixDisplay.from_estimator(grid_search, X_test, y_test, xticks_rotation="vertical")
     return
 
-
-# iterate over cluterers
-#def gridsearch_clustering(names,pipes,X_train,X_test,y_train,y_test):
 def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
+  # iterate over cluterers
   for j in range(len(names)):
       x_classes = int(np.amax(X)+1)
       y_classes = int(np.amax(y)+1)
@@ -85,3 +83,17 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
           fig.update_xaxes(title_text="Class "+str(f), row=f+1, col=2)
           f = f + 1
       fig.show()
+
+def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='accuracy'):
+    # iterate over regressors
+    for j in range(len(names)):
+
+        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
+        grid_search.fit(X_train, y_train)
+        score = grid_search.score(X_test, y_test)
+        print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
+        print(grid_search.best_params_)
+        y_pred = grid_search.predict(X_test)
+        #print(classification_report(y_test, y_pred))
+        #ConfusionMatrixDisplay.from_estimator(grid_search, X_test, y_test, xticks_rotation="vertical")
+    return
