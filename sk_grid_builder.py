@@ -64,7 +64,7 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
       print("Best "+scoring+"score: ",grid_search.best_score_)
       #y_pred = grid_search.predict(X_test)
       #print(classification_report(y_test, y_pred))
-      labels = grid_search.best_estimator_.classes_
+      labels = grid_search.classes_
 
       x_classes = int(np.amax(X)+1)
       y_classes = int(np.amax(y)+1)
