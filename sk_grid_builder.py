@@ -47,14 +47,14 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
 def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
   # iterate over cluterers
   for j in range(len(names)):
-      x_classes = int(np.amax(X)+1)
-      y_classes = int(np.amax(y)+1)
-      if x_classes > y_classes:
-          n_classes = x_classes
-      else:
-          n_classes = y_classes  
-      x_axis = np.arange(len(X[0]))
-      fig = make_subplots(rows=n_classes, cols=2)
+      #x_classes = int(np.amax(X)+1)
+      #y_classes = int(np.amax(y)+1)
+      #if x_classes > y_classes:
+      #    n_classes = x_classes
+      #else:
+      #    n_classes = y_classes  
+      #x_axis = np.arange(len(X[0]))
+      #fig = make_subplots(rows=n_classes, cols=2)
 
       grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
       grid_search.fit(X, y)
@@ -65,6 +65,15 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
       #y_pred = grid_search.predict(X_test)
       #print(classification_report(y_test, y_pred))
       
+      x_classes = int(np.amax(X)+1)
+      y_classes = int(np.amax(y)+1)
+      if x_classes > y_classes:
+        n_classes = x_classes
+      else:
+        n_classes = y_classes  
+      x_axis = np.arange(len(X[0]))
+      fig = make_subplots(rows=n_classes, cols=2)
+
       count = 0
       while count < len(y):
           fig.add_trace(
