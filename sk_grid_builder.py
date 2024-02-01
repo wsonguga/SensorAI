@@ -68,6 +68,8 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
 
       x_classes = int(np.amax(X)+1)
       y_classes = int(np.amax(y)+1)
+      print("# of X's classes is: ",x_classes)
+      print("# of y's classes is: ",y_classes)
       if x_classes > y_classes:
         n_classes = x_classes
       else:
