@@ -66,6 +66,9 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
       #print(classification_report(y_test, y_pred))
       labels = grid_search.best_estimator_.steps[0][1].labels_
       print("Best Model Labels: ",labels)
+      noise = np.isin(labels, -1)
+      if np.any(noise)==True:
+         
 
       x_classes = int(np.amax(labels)+1)
       y_classes = int(np.amax(y)+1)
