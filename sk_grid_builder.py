@@ -66,11 +66,12 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
       #print(classification_report(y_test, y_pred))
       labels = grid_search.best_estimator_.steps[0][1].labels_
       print("Best Model Labels: ",labels)
-      noise = np.isin(labels, '-1')
+      noise = np.isin(labels, -1)
       if np.any(noise)==True:
          new_noise_label = int(np.amax(labels)+1) # find the max label value
          #labels[labels == -1] = str(new_noise_label) # find all noise labels (-1 values) & replace with a new positive value
-         labels = np.char.replace(labels, '-1', str(new_noise_label))
+         #labels = np.char.replace(labels, '-1', str(new_noise_label))
+         labels = np.where(labels == -1, new_noise_label, labels)
          
 
       x_classes = int(np.amax(labels)+1)
