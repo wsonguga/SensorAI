@@ -42,19 +42,36 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
         y_pred = grid_search.predict(X_test)
         print(classification_report(y_test, y_pred))
         ConfusionMatrixDisplay.from_estimator(grid_search, X_test, y_test, xticks_rotation="vertical")
+
+        labels = grid_search.best_estimator_.steps[0][1].labels_
+                   
+        n_classes = int(np.amax(y_test)+1) 
+        x_axis = np.arange(len(X_test[0]))
+        fig = make_subplots(rows=n_classes, cols=2)
+
+        count = 0
+        while count < len(y_test):
+            fig.add_trace(
+                go.Scatter(x=x_axis,y=X_test[count]),
+                row=int(y_pred[count])+1, col=1
+            )
+            fig.add_trace(
+                go.Scatter(x=x_axis, y=X_test[count]),
+                row=int(y_test[count])+1, col=2
+            )
+            count = count + 1
+        fig.update_layout(title_text = names[j]+": Predicted vs Truth")
+        f = 0
+        while f < n_classes:
+            fig.update_xaxes(title_text="Class "+str(f), row=f+1, col=1)
+            fig.update_xaxes(title_text="Class "+str(f), row=f+1, col=2)
+            f = f + 1
+        fig.show()
     return
 
 def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
   # iterate over cluterers
   for j in range(len(names)):
-      #x_classes = int(np.amax(X)+1)
-      #y_classes = int(np.amax(y)+1)
-      #if x_classes > y_classes:
-      #    n_classes = x_classes
-      #else:
-      #    n_classes = y_classes  
-      #x_axis = np.arange(len(X[0]))
-      #fig = make_subplots(rows=n_classes, cols=2)
 
       grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
       grid_search.fit(X, y)
