@@ -43,7 +43,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
         print(classification_report(y_test, y_pred))
         ConfusionMatrixDisplay.from_estimator(grid_search, X_test, y_test, xticks_rotation="vertical")
 
-        labels = grid_search.best_estimator_.steps[0][1].labels_
+        #labels = grid_search.best_estimator_.steps[0][1].labels_
                    
         n_classes = int(np.amax(y_test)+1) 
         x_axis = np.arange(len(X_test[0]))
