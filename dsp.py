@@ -4492,7 +4492,7 @@ def generate_class_data(wave_number=10,show=True):
     plot.add_trace(go.Scatter(x=X_axis,y=X[0,0:len(X[0])]))
     plot.add_trace(go.Scatter(x=X_axis,y=X[1,0:len(X[1])]))
     plot.add_trace(go.Scatter(x=X_axis,y=X[2,0:len(X[2])]))
-    plot.update_layout(title="Data: 1st three samples")
+    plot.update_layout(title="Data: 1st sample of each waveform type")
     plot.show()
 
   x = X[:, :X.shape[1]-1]  # data
