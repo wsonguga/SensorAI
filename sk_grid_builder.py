@@ -82,7 +82,7 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
       #y_pred = grid_search.predict(X_test)
       #print(classification_report(y_test, y_pred))
       labels = grid_search.best_estimator_.steps[0][1].labels_
-      print("Best Model Labels: ",labels)
+      #print("Best Model Labels: ",labels)
       noise = np.isin(labels, -1)
       if np.any(noise)==True:
          new_noise_label = int(np.amax(labels)+1) # find the max label value
