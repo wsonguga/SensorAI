@@ -4466,3 +4466,34 @@ def sst_cwt(signal, wavelet, scales, nv, fs, gamma=None, show=False):
         plt.tight_layout()
         plt.show()
     return Tx, Wx, ssq_freqs, scales
+
+def generate_class_data(wave_number=10,show=True):
+  X = []
+  count = 0
+  while count < wave_number:
+    wave0 = sine_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 30))
+    wave0 = np.append(wave0, 0, axis=None)
+    X.append(wave0)
+    wave1 = triangle_wave(amplitude=random.randint(1, 3), period=random.uniform(0.03333, 1.0))
+    wave1 = np.append(wave1, 1, axis=None)
+    X.append(wave1)
+    wave2 = square_wave(frequency=random.randint(1, 30))
+    wave2 = np.append(wave2, 2, axis=None)
+    X.append(wave2)
+    count = count + 1
+
+  X = np.array(X)
+  X_axis = np.arange(len(X[0]))
+
+  if show == True:
+    plot = go.Figure()
+    plot.add_trace(go.Scatter(x=X_axis,y=X[0,0:len(X[0])]))
+    plot.add_trace(go.Scatter(x=X_axis,y=X[1,0:len(X[1])]))
+    plot.add_trace(go.Scatter(x=X_axis,y=X[2,0:len(X[2])]))
+    plot.update_layout(title="Data: 1st three samples")
+    plot.show()
+
+  x = X[:, :X.shape[1]-1]  # data
+  y = X[:, -1] # label
+
+  return x, y
