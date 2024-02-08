@@ -42,8 +42,6 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
         y_pred = grid_search.predict(X_test)
         print(classification_report(y_test, y_pred))
         ConfusionMatrixDisplay.from_estimator(grid_search, X_test, y_test, xticks_rotation="vertical")
-
-        #labels = grid_search.best_estimator_.steps[0][1].labels_
                    
         n_classes = int(np.amax(y_test)+1) 
         x_axis = np.arange(len(X_test[0]))
@@ -79,15 +77,11 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score'):
       print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
       print(grid_search.best_params_)
       print("Best "+scoring+"score: ",grid_search.best_score_)
-      #y_pred = grid_search.predict(X_test)
-      #print(classification_report(y_test, y_pred))
       labels = grid_search.best_estimator_.steps[0][1].labels_
       #print("Best Model Labels: ",labels)
       noise = np.isin(labels, -1)
       if np.any(noise)==True:
          new_noise_label = int(np.amax(labels)+1) # find the max label value
-         #labels[labels == -1] = str(new_noise_label) # find all noise labels (-1 values) & replace with a new positive value
-         #labels = np.char.replace(labels, '-1', str(new_noise_label))
          labels = np.where(labels == -1, new_noise_label, labels)
          
 
