@@ -63,6 +63,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
                         plot_num = plot_num +1
                     count = count + 1
                 current_label = current_label +1
+                count = 0
         elif plot_number == 'all': 
             while count < len(y_test):
                 fig.add_trace(
