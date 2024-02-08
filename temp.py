@@ -153,10 +153,10 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
         else:
             print("Incorrect plot number value entered")
 
-      fig.update_layout(title_text = names[j]+": Predicted vs Truth")
-      f = 0
-      while f < n_classes:
-          fig.update_xaxes(title_text="Class "+str(f), row=f+1, col=1)
-          fig.update_xaxes(title_text="Class "+str(f), row=f+1, col=2)
-          f = f + 1
-      fig.show()
+        fig.update_layout(title_text = names[j]+": Predicted vs Truth")
+        f = 0
+        while f < n_classes:
+            fig.update_xaxes(title_text="Class "+str(f), row=f+1, col=1)
+            fig.update_xaxes(title_text="Class "+str(f), row=f+1, col=2)
+            f = f + 1
+        fig.show()
