@@ -4473,13 +4473,13 @@ def generate_class_data(wave_number=10,show=True):
   X = []
   count = 0
   while count < wave_number:
-    wave0 = sine_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 30))
+    wave0 = sine_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3))
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
-    wave1 = triangle_wave(amplitude=random.randint(1, 3), period=random.uniform(0.03333, 1.0))
+    wave1 = triangle_wave(amplitude=random.randint(1, 3), period=random.uniform(0.3333, 1.0))
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
-    wave2 = square_wave(frequency=random.randint(1, 30))
+    wave2 = square_wave(frequency=random.randint(1, 3))
     wave2 = np.append(wave2, 2, axis=None)
     X.append(wave2)
     count = count + 1
