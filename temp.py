@@ -49,7 +49,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
         current_label = 0
         plot_num = 0
         if plot_number.isdigit() and plot_number > 0 and plot_number <= 10:
-            while current_label < n_classes
+            while current_label < n_classes:
                 while count < len(y_test):
                     if y_test[count] == current_label and plot_num < plot_number:
                         fig.add_trace(
