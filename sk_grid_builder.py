@@ -202,7 +202,7 @@ def gridsearch_classifier_mod(names,pipes,X_train,X_test,y_train,y_test,scoring=
         titles = []
         while i < plot_number:
             while j < n_classes:
-                name = "Class " + str(j) + ", Sample " + str(i)
+                name = "Class " + str(j) + ", Sample " + str(i+1)
                 titles.append(name)
                 j = j+1
             i = i+1
