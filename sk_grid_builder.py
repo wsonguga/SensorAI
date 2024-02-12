@@ -177,3 +177,59 @@ def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='accu
         plt.scatter(y_pred, y_test)
         plt.show()
     return
+
+def gridsearch_classifier_mod(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_mean_squared_error',plot_number=10):
+    # iterate over classifiers
+    for j in range(len(names)):
+
+        #today = date.today()
+        #now = today.strftime("%b-%d-%Y")
+        #save_file = str(names[j]) + '-' + str(now) + '-HeatMap.png'
+
+        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
+        grid_search.fit(X_train, y_train)
+        score = grid_search.score(X_test, y_test)
+        print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
+        print(grid_search.best_params_)
+        y_pred = grid_search.predict(X_test)
+        print(classification_report(y_test, y_pred))
+        ConfusionMatrixDisplay.from_estimator(grid_search, X_test, y_test, xticks_rotation="vertical")
+                   
+        n_classes = int(np.amax(y_test)+1) 
+        x_axis = np.arange(len(X_test[0]))
+        i = 0
+        j = 0
+        titles = []
+        while i < plot_number:
+            while j < n_classes:
+                name = "Class " + str(j) + ", Sample " + str(i)
+                titles.append(name)
+                j = j+1
+            i = i+1
+        #fig = make_subplots(rows=n_classes, cols=n_classes)
+        fig = make_subplots(
+            rows=n_classes, cols=n_classes,
+            subplot_titles=titles)
+
+        count = 0
+        current_label = 0
+        plot_num = 0
+        if isinstance(plot_number,int) and plot_number > 0 and plot_number <= 10:
+            while current_label < n_classes:
+                while count < len(y_test):
+                    if y_test[count] == current_label and plot_num < plot_number:
+                        fig.add_trace(
+                            go.Scatter(x=x_axis,y=X_test[count]),
+                            row=plot_num+1, col=current_label+1
+                        )                        
+                        plot_num = plot_num +1
+                    count = count + 1
+                current_label = current_label +1
+                plot_num = 0
+                count = 0
+        else:
+            print("Incorrect plot number value entered")
+
+        fig.update_layout(title_text = names[j]+": Predicted vs Truth")
+        fig.show()
+    return
