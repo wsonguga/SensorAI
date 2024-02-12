@@ -113,7 +113,6 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
         fig = make_subplots(
             rows=n_classes, cols=n_classes,
             subplot_titles=titles)
-        fig = make_subplots(rows=n_classes, cols=2)
 
       
         count = 0
