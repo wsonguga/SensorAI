@@ -121,7 +121,7 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
         if isinstance(plot_number,int) and plot_number > 0 and plot_number <= 10:
             while current_label < n_classes:
                 while count < len(y):
-                    if y[count] == current_label and plot_num < plot_number:
+                    if labels[count] == current_label and plot_num < plot_number:
                         fig.add_trace(
                             go.Scatter(x=x_axis,y=X[count]),
                             row=plot_num+1, col=current_label+1
