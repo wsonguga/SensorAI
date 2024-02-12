@@ -229,7 +229,5 @@ def gridsearch_classifier_mod(names,pipes,X_train,X_test,y_train,y_test,scoring=
                 count = 0
         else:
             print("Incorrect plot number value entered")
-
-        fig.update_layout(title_text = names[j]+": Predicted vs Truth")
         fig.show()
     return
