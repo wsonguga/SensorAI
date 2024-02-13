@@ -159,7 +159,7 @@ def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_num
         #score = grid_search.score(X, y)
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
         print(grid_search.best_params_)
-        ConfusionMatrixDisplay.from_estimator(grid_search, X, y, xticks_rotation="vertical")
+        #ConfusionMatrixDisplay.from_estimator(grid_search, X, y, xticks_rotation="vertical")
                    
         n_classes = int(np.amax(y)+1) 
         x_axis = np.arange(len(X[0]))
