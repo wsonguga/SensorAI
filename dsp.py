@@ -155,7 +155,7 @@ def sine_wave(duration=10, sampling_rate=100, amplitude=1, frequency=1, phase=0,
     return sine_wave
 
 
-def triangle_wave(duration=10, sampling_rate=100, amplitude=1, period=2, show=False):
+def triangle_wave(duration=10, sampling_rate=100, amplitude=1, frequency=1, show=False):
     """
     Generate a triangle wave signal.
 
@@ -166,14 +166,15 @@ def triangle_wave(duration=10, sampling_rate=100, amplitude=1, period=2, show=Fa
         The number of samples per second used for discretization.
     Amplitude : float
         The amplitude of the triangle wave.
-    period : float
-        The period of the triangle wave.
+    frequency : float
+        The frequency of the triangle wave.
 
     Returns:
     triangle_wave : array-like
         An array containing the values of the triangle wave signal at the given time points.
     """
 
+    period = 1/frequency
     time = np.linspace(0, duration, duration * sampling_rate, endpoint=False)
     # Scale the time values to a normalized range [-1, 1] within each period
     t_scaled = 1 * np.abs(2 * (time / period - np.floor(time / period + 0.5))) - 1
@@ -188,7 +189,7 @@ def triangle_wave(duration=10, sampling_rate=100, amplitude=1, period=2, show=Fa
 
 
 
-def square_wave(duration=10, sampling_rate=100, frequency=1, show=False):
+def square_wave(duration=10, sampling_rate=100, amplitude=1, frequency=1, show=False):
     """
     Generate a square wave signal.
 
@@ -205,7 +206,7 @@ def square_wave(duration=10, sampling_rate=100, frequency=1, show=False):
         An array containing the values of the square wave signal at the given time points.
     """
     time = np.linspace(0, duration, duration * sampling_rate, endpoint=False)
-    square_wave = 2 * (2 * np.floor(frequency * time) - np.floor(2 * frequency * time)) + 1
+    square_wave = amplitude * (2 * np.floor(frequency * time) - np.floor(2 * frequency * time)) + 1
 
     if show:
         plot_sim_waves(square_wave, 'Square Wave')
@@ -4476,11 +4477,11 @@ def generate_class_data(wave_number=10,show=True):
     wave0 = sine_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3))
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
-    wave1 = triangle_wave(amplitude=random.randint(1, 3), period=random.uniform(0.3333, 1.0))
+    wave1 = triangle_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3)) #period=random.uniform(0.8, 1.0))
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
-    wave2 = square_wave(frequency=random.randint(1, 3))
-    wave2 = np.append(wave2, 2, axis=None)
+    wave2 = square_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3))
+    wave2 = np.append(wave2, 2, axis=None)  
     X.append(wave2)
     count = count + 1
 
