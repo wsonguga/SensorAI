@@ -52,7 +52,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
             titles.append(name)
             j = j+1
         fig = make_subplots(
-            rows=n_classes, cols=n_classes,
+            rows=plot_number, cols=n_classes,
             subplot_titles=titles)
 
         count = 0
@@ -111,7 +111,7 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
             titles.append(name)
             j = j+1
         fig = make_subplots(
-            rows=n_classes, cols=n_classes,
+            rows=plot_number, cols=n_classes,
             subplot_titles=titles)
 
       
@@ -148,6 +148,50 @@ def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='accu
         
         plt.scatter(y_pred, y_test)
         plt.show()
+    return
+
+def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_number=10):
+    # iterate over classifiers
+    for j in range(len(names)):
+
+        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
+        grid_search.fit(X, y)
+        #score = grid_search.score(X, y)
+        print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
+        print(grid_search.best_params_)
+        #ConfusionMatrixDisplay.from_estimator(grid_search, X, y, xticks_rotation="vertical")
+                   
+        n_classes = int(np.amax(y)+1) 
+        x_axis = np.arange(len(X[0]))
+        j = 0
+        titles = []
+        while j < n_classes:
+            name = "Class " + str(j)
+            titles.append(name)
+            j = j+1
+        fig = make_subplots(
+            rows=plot_number, cols=n_classes,
+            subplot_titles=titles)
+
+        count = 0
+        current_label = 0
+        plot_num = 0
+        if isinstance(plot_number,int) and plot_number > 0 and plot_number <= 10:
+            while current_label < n_classes:
+                while count < len(y):
+                    if y[count] == current_label and plot_num < plot_number:
+                        fig.add_trace(
+                            go.Scatter(x=x_axis,y=X[count]),
+                            row=plot_num+1, col=current_label+1
+                        )                        
+                        plot_num = plot_num +1
+                    count = count + 1
+                current_label = current_label +1
+                plot_num = 0
+                count = 0
+        else:
+            print("Incorrect plot number value entered")
+        fig.show()
     return
 
 """ # Old version
