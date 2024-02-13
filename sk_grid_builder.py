@@ -52,7 +52,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
             titles.append(name)
             j = j+1
         fig = make_subplots(
-            rows=n_classes, cols=n_classes,
+            rows=plot_number, cols=n_classes,
             subplot_titles=titles)
 
         count = 0
@@ -111,7 +111,7 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
             titles.append(name)
             j = j+1
         fig = make_subplots(
-            rows=n_classes, cols=n_classes,
+            rows=plot_number, cols=n_classes,
             subplot_titles=titles)
 
       
@@ -170,7 +170,7 @@ def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_num
             titles.append(name)
             j = j+1
         fig = make_subplots(
-            rows=n_classes, cols=n_classes,
+            rows=plot_number, cols=n_classes,
             subplot_titles=titles)
 
         count = 0
