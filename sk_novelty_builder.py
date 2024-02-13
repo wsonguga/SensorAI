@@ -27,7 +27,7 @@ import plotly.express as px
 
 from anomaly_detection import sst_class as sst
 
-import tutorials_old.load_data as ld
+#import tutorials_old.load_data as ld
 
 algo_list = ['one class svm','sgd one class svm','sst','lof novelty','lof outlier','elliptic envelope','isolation forest']
 
