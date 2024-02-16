@@ -176,17 +176,12 @@ def triangle_wave(duration=10, sampling_rate=100, amplitude=1, frequency=1, show
 
     period = 1/frequency
     time = np.linspace(0, duration, duration * sampling_rate, endpoint=False)
-    # Scale the time values to a normalized range [-1, 1] within each period
-    t_scaled = 1 * np.abs(2 * (time / period - np.floor(time / period + 0.5))) - 1
-
-    # Calculate the triangle wave values based on scaled time values
-    triangle_wave = (3 * amplitude / period) * np.abs((t_scaled - period / 4) % period - period / 2) - amplitude
+    triangle_wave = (4 * amplitude / period) * np.abs((time - period / 4) % period - period / 2) - amplitude
 
     if show:
         plot_sim_waves(triangle_wave, 'Triangle Wave')
 
     return triangle_wave
-
 
 
 def square_wave(duration=10, sampling_rate=100, amplitude=1, frequency=1, show=False):
@@ -206,7 +201,7 @@ def square_wave(duration=10, sampling_rate=100, amplitude=1, frequency=1, show=F
         An array containing the values of the square wave signal at the given time points.
     """
     time = np.linspace(0, duration, duration * sampling_rate, endpoint=False)
-    square_wave = amplitude * (2 * np.floor(frequency * time) - np.floor(2 * frequency * time)) + 1
+    square_wave = amplitude * (2 * (2 * np.floor(frequency * time) - np.floor(2 * frequency * time)) + 1)
 
     if show:
         plot_sim_waves(square_wave, 'Square Wave')
