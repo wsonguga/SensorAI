@@ -4465,17 +4465,25 @@ def sst_cwt(signal, wavelet, scales, nv, fs, gamma=None, show=False):
         plt.show()
     return Tx, Wx, ssq_freqs, scales
 
-def generate_class_data(amplitude=random.randint(1, 3),frequency=random.randint(1, 3),wave_number=10,show=True):
+def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
   X = []
   count = 0
   while count < wave_number:
-    wave0 = sine_wave(amplitude=amplitude, frequency=frequency)
+    if amplitude != None and isinstance(amp,int):
+        amp = amplitude
+    else:
+        amp = random.randint(1, 3)
+    if frequency != None and isinstance(freq,int):
+        freq = frequency
+    else:
+        freq = random.randint(1, 3)
+    wave0 = sine_wave(amplitude=amp, frequency=freq)
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
-    wave1 = triangle_wave(amplitude=amplitude, frequency=frequency) #period=random.uniform(0.8, 1.0))
+    wave1 = triangle_wave(amplitude=amp, frequency=freq) #period=random.uniform(0.8, 1.0))
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
-    wave2 = square_wave(amplitude=amplitude, frequency=frequency)
+    wave2 = square_wave(amplitude=amp, frequency=freq)
     wave2 = np.append(wave2, 2, axis=None)  
     X.append(wave2)
     count = count + 1
