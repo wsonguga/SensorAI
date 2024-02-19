@@ -4489,7 +4489,7 @@ def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
     wave0 = sine_wave(amplitude=amp0, frequency=freq0)
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
-    wave1 = triangle_wave(amplitude=amp1, frequency=freq1) #period=random.uniform(0.8, 1.0))
+    wave1 = triangle_wave(amplitude=amp1, frequency=freq1)
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
     wave2 = square_wave(amplitude=amp2, frequency=freq2)
