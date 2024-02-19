@@ -4470,11 +4470,11 @@ def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
   count = 0
   # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
   while count < wave_number:
-    if amplitude != None and isinstance(amp,int):
+    if amplitude != None and isinstance(amplitude,int):
         amp = amplitude
     else:
         amp = random.randint(1, 3)
-    if frequency != None and isinstance(freq,int):
+    if frequency != None and isinstance(frequency,int):
         freq = frequency
     else:
         freq = random.randint(1, 3)
