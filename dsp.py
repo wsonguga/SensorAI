@@ -4471,20 +4471,28 @@ def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
   # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
   while count < wave_number:
     if amplitude != None and isinstance(amplitude,int):
-        amp = amplitude
+        amp0 = amplitude
+        amp1 = amplitude
+        amp2 = amplitude
     else:
-        amp = random.randint(1, 3)
+        amp0 = random.randint(1, 3)
+        amp1 = random.randint(1, 3)
+        amp2 = random.randint(1, 3)
     if frequency != None and isinstance(frequency,int):
-        freq = frequency
+        freq0 = frequency
+        freq1 = frequency
+        freq2 = frequency
     else:
-        freq = random.randint(1, 3)
-    wave0 = sine_wave(amplitude=amp, frequency=freq)
+        freq0 = random.randint(1, 3)
+        freq1 = random.randint(1, 3)
+        freq2 = random.randint(1, 3)
+    wave0 = sine_wave(amplitude=amp0, frequency=freq0)
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
-    wave1 = triangle_wave(amplitude=amp, frequency=freq) #period=random.uniform(0.8, 1.0))
+    wave1 = triangle_wave(amplitude=amp1, frequency=freq1) #period=random.uniform(0.8, 1.0))
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
-    wave2 = square_wave(amplitude=amp, frequency=freq)
+    wave2 = square_wave(amplitude=amp2, frequency=freq2)
     wave2 = np.append(wave2, 2, axis=None)  
     X.append(wave2)
     count = count + 1
@@ -4511,17 +4519,21 @@ def generate_anomaly_data(amplitude=None,frequency=None,wave_number=10,show=True
   # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
   while count < wave_number:
     if amplitude != None and isinstance(amplitude,int):
-        amp = amplitude
+        amp0 = amplitude
+        amp1 = amplitude
     else:
-        amp = random.randint(1, 3)
+        amp0 = random.randint(1, 3)
+        amp1 = random.randint(1, 3)
     if frequency != None and isinstance(frequency,int):
-        freq = frequency
+        freq0 = frequency
+        freq1= frequency
     else:
-        freq = random.randint(1, 3)
-    wave0 = sine_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3))
+        freq0 = random.randint(1, 3)
+        freq1 = random.randint(1, 3)
+    wave0 = sine_wave(amplitude=amp0, frequency=freq0)
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
-    wave1 = square_wave(frequency=random.randint(1, 3))
+    wave1 = square_wave(amplitude=amp1, frequency=freq1)
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
     count = count + 1
