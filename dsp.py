@@ -4468,6 +4468,7 @@ def sst_cwt(signal, wavelet, scales, nv, fs, gamma=None, show=False):
 def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
   X = []
   count = 0
+  # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
   while count < wave_number:
     if amplitude != None and isinstance(amp,int):
         amp = amplitude
