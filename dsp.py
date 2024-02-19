@@ -4505,10 +4505,19 @@ def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
 
   return x, y
 
-def generate_anomaly_data(wave_number=10,show=True):
+def generate_anomaly_data(amplitude=None,frequency=None,wave_number=10,show=True):
   X = []
   count = 0
+  # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
   while count < wave_number:
+    if amplitude != None and isinstance(amplitude,int):
+        amp = amplitude
+    else:
+        amp = random.randint(1, 3)
+    if frequency != None and isinstance(frequency,int):
+        freq = frequency
+    else:
+        freq = random.randint(1, 3)
     wave0 = sine_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3))
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
