@@ -3401,6 +3401,7 @@ def sst_cwt(signal, wavelet, scales, nv, fs, gamma=None, show=False):
         plt.show()
     return Tx, Wx, ssq_freqs, scales
 
+<<<<<<< HEAD
 def extract_spectral_entropy(signal, fs, num_segments=10):
     """
     Description:
@@ -3550,16 +3551,36 @@ def cal_autocorr(signal, plot=False):
     return lags, corrs
 
 def generate_class_data(wave_number=10,show=True):
+=======
+def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
+>>>>>>> 25f4973a5fa1155c6a7e0766dc20503abaaea55d
   X = []
   count = 0
+  # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
   while count < wave_number:
-    wave0 = sine_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3))
+    if amplitude != None and isinstance(amplitude,int):
+        amp0 = amplitude
+        amp1 = amplitude
+        amp2 = amplitude
+    else:
+        amp0 = random.randint(1, 3)
+        amp1 = random.randint(1, 3)
+        amp2 = random.randint(1, 3)
+    if frequency != None and isinstance(frequency,int):
+        freq0 = frequency
+        freq1 = frequency
+        freq2 = frequency
+    else:
+        freq0 = random.randint(1, 3)
+        freq1 = random.randint(1, 3)
+        freq2 = random.randint(1, 3)
+    wave0 = sine_wave(amplitude=amp0, frequency=freq0)
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
-    wave1 = triangle_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3)) #period=random.uniform(0.8, 1.0))
+    wave1 = triangle_wave(amplitude=amp1, frequency=freq1)
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
-    wave2 = square_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3))
+    wave2 = square_wave(amplitude=amp2, frequency=freq2)
     wave2 = np.append(wave2, 2, axis=None)  
     X.append(wave2)
     count = count + 1
@@ -3580,14 +3601,27 @@ def generate_class_data(wave_number=10,show=True):
 
   return x, y
 
-def generate_anomaly_data(wave_number=10,show=True):
+def generate_anomaly_data(amplitude=None,frequency=None,wave_number=10,show=True):
   X = []
   count = 0
+  # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
   while count < wave_number:
-    wave0 = sine_wave(amplitude=random.randint(1, 3), frequency=random.randint(1, 3))
+    if amplitude != None and isinstance(amplitude,int):
+        amp0 = amplitude
+        amp1 = amplitude
+    else:
+        amp0 = random.randint(1, 3)
+        amp1 = random.randint(1, 3)
+    if frequency != None and isinstance(frequency,int):
+        freq0 = frequency
+        freq1= frequency
+    else:
+        freq0 = random.randint(1, 3)
+        freq1 = random.randint(1, 3)
+    wave0 = sine_wave(amplitude=amp0, frequency=freq0)
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
-    wave1 = square_wave(frequency=random.randint(1, 3))
+    wave1 = square_wave(amplitude=amp1, frequency=freq1)
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
     count = count + 1
