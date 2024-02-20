@@ -3401,7 +3401,6 @@ def sst_cwt(signal, wavelet, scales, nv, fs, gamma=None, show=False):
         plt.show()
     return Tx, Wx, ssq_freqs, scales
 
-<<<<<<< HEAD
 def extract_spectral_entropy(signal, fs, num_segments=10):
     """
     Description:
@@ -3550,10 +3549,7 @@ def cal_autocorr(signal, plot=False):
         plt.show()
     return lags, corrs
 
-def generate_class_data(wave_number=10,show=True):
-=======
 def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
->>>>>>> 25f4973a5fa1155c6a7e0766dc20503abaaea55d
   X = []
   count = 0
   # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
