@@ -63,12 +63,12 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
                             row=plot_num+1, col=current_label+1
                         )                        
                         plot_num = plot_num +1
-                    count = count + 1
-                    if y_pred[current_label] == y_test[current_label]:
-                        color = 'red'
-                    else:
+                    if y_pred[count] == y_test[count]:
                         color = 'black'
+                    else:
+                        color = 'red'
                     fig.update_traces(line_color=color)
+                    count = count + 1
                 current_label = current_label +1
                 plot_num = 0
                 count = 0
