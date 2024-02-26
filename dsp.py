@@ -1,4 +1,5 @@
 import os
+import random
 import warnings
 import matplotlib.pyplot as plt
 import numpy as np
@@ -3651,17 +3652,17 @@ def generate_regression_data(amplitude=None,wave_number=10,show=True):
         amp0 = random.randint(1, 3)
         amp1 = random.randint(1, 3)
         amp2 = random.randint(1, 3)
-    freq0 = random.randint(1, 3)
-    freq1 = random.randint(1, 3)
-    freq2 = random.randint(1, 3)
+    freq0 = random.uniform(1.0, 3.0)
+    freq1 = random.uniform(1.0, 3.0)
+    freq2 = random.uniform(1.0, 3.0)
     wave0 = sine_wave(amplitude=amp0, frequency=freq0)
-    wave0 = np.append(wave0, float(freq0), axis=None)
+    wave0 = np.append(wave0, freq0, axis=None)
     X.append(wave0)
     wave1 = triangle_wave(amplitude=amp1, frequency=freq1)
-    wave1 = np.append(wave1, float(freq1), axis=None)
+    wave1 = np.append(wave1, freq1, axis=None)
     X.append(wave1)
     wave2 = square_wave(amplitude=amp2, frequency=freq2)
-    wave2 = np.append(wave2, float(freq2), axis=None)  
+    wave2 = np.append(wave2, freq2, axis=None)  
     X.append(wave2)
     count = count + 1
 
