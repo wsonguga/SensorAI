@@ -3636,3 +3636,47 @@ def generate_anomaly_data(amplitude=None,frequency=None,wave_number=10,show=True
   y = X[:, -1] # label
 
   return x, y
+
+
+def generate_regression_data(amplitude=None,wave_number=10,show=True):
+  X = []
+  count = 0
+  # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
+  while count < wave_number:
+    if amplitude != None and isinstance(amplitude,int):
+        amp0 = amplitude
+        amp1 = amplitude
+        amp2 = amplitude
+    else:
+        amp0 = random.randint(1, 3)
+        amp1 = random.randint(1, 3)
+        amp2 = random.randint(1, 3)
+    freq0 = random.randint(1, 3)
+    freq1 = random.randint(1, 3)
+    freq2 = random.randint(1, 3)
+    wave0 = sine_wave(amplitude=amp0, frequency=freq0)
+    wave0 = np.append(wave0, freq0, axis=None)
+    X.append(wave0)
+    wave1 = triangle_wave(amplitude=amp1, frequency=freq1)
+    wave1 = np.append(wave1, freq1, axis=None)
+    X.append(wave1)
+    wave2 = square_wave(amplitude=amp2, frequency=freq2)
+    wave2 = np.append(wave2, freq2, axis=None)  
+    X.append(wave2)
+    count = count + 1
+
+  X = np.array(X)
+  X_axis = np.arange(len(X[0]))
+
+  if show == True:
+    plot = go.Figure()
+    plot.add_trace(go.Scatter(x=X_axis,y=X[0,0:len(X[0])]))
+    plot.add_trace(go.Scatter(x=X_axis,y=X[1,0:len(X[1])]))
+    plot.add_trace(go.Scatter(x=X_axis,y=X[2,0:len(X[2])]))
+    plot.update_layout(title="Data: 1st sample of each waveform type")
+    plot.show()
+
+  x = X[:, :X.shape[1]-1]  # data
+  y = X[:, -1] # label
+
+  return x, y
