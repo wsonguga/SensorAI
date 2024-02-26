@@ -23,6 +23,7 @@ from sklearn.naive_bayes import GaussianNB, MultinomialNB, BernoulliNB, Compleme
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis, LinearDiscriminantAnalysis
 from sklearn.neural_network import BernoulliRBM
 from sklearn.metrics.cluster import adjusted_rand_score, rand_score, mutual_info_score, normalized_mutual_info_score
+from sklearn.metrics import PredictionErrorDisplay
 
 from plotly.subplots import make_subplots
 
@@ -147,7 +148,11 @@ def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='accu
         print(grid_search.best_params_)
         y_pred = grid_search.predict(X_test)
         
-        plt.scatter(y_pred, y_test)
+        PredictionErrorDisplay.from_estimator(grid_search, X_test, y_test)
+        best_title = 'Best Model: ' + names[j]
+        plt.title(best_title)
+
+        #plt.scatter(y_pred, y_test)
         plt.show()
     return
 
