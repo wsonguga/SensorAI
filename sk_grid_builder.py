@@ -137,7 +137,7 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
             print("Incorrect plot number value entered")
         fig.show()
 
-def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='accuracy'):
+def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_mean_squared_error'):
     # iterate over regressors
     for j in range(len(names)):
 
