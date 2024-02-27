@@ -30,8 +30,8 @@ def plot_2vectors(label, pred, save=False, name=None, path=None):
             raise ValueError("If save is True, 'path' argument must be provided.")
         plt.savefig(f'{path}.jpg', dpi=300)
         print(f'Saved plot to {path}.jpg')
-
-    plt.show()
+    #plt.show()
+    return plt
 
 
 def ls2pkl(filepath, data):
