@@ -149,7 +149,7 @@ def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_
         print(grid_search.best_params_)
         y_pred = grid_search.predict(X_test)
         
-        utils.plot_2vectors(label=y_test, pred=y_pred, save=False, name=None, path=None)
+        plt = utils.plot_2vectors(label=y_test, pred=y_pred, save=False, name=None, path=None)
         #PredictionErrorDisplay.from_estimator(grid_search, X_test, y_test)
         best_title = 'Best Model: ' + names[j]
         plt.title(best_title)
