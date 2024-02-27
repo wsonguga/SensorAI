@@ -6,7 +6,7 @@ import pickle
 def calc_mae(gt, pred):
     return np.mean(abs(np.array(gt) - np.array(pred)))
 
-def plot_2vectors(label, pred, save=False, name=None, path=None):
+def plot_2vectors(label, pred, save=False, name=None, path=None, size=1):
     """lsit1: label, list2: prediction"""
 
     list1 = label
@@ -21,8 +21,8 @@ def plot_2vectors(label, pred, save=False, name=None, path=None):
     plt.clf()
     plt.text(0, np.min(list2), f'MAE={mae}')
 
-    plt.scatter(np.arange(list2.shape[0]), list2[sorted_id], s=5, alpha=0.5, label=f'{name} prediction', color='blue')
-    plt.scatter(np.arange(list1.shape[0]), list1[sorted_id], s=5, alpha=0.5, label=f'{name} label', color='red')
+    plt.scatter(np.arange(list2.shape[0]), list2[sorted_id], s=size, alpha=0.5, label=f'{name} prediction', color='blue')
+    plt.scatter(np.arange(list1.shape[0]), list1[sorted_id], s=size, alpha=0.5, label=f'{name} label', color='red')
     plt.legend(loc='lower right')
 
     if save:
