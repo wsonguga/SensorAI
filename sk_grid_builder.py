@@ -26,6 +26,7 @@ from sklearn.metrics.cluster import adjusted_rand_score, rand_score, mutual_info
 from sklearn.metrics import PredictionErrorDisplay
 
 from plotly.subplots import make_subplots
+import utils
 
 def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_mean_squared_error',plot_number=10):
     # iterate over classifiers
@@ -148,7 +149,8 @@ def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_
         print(grid_search.best_params_)
         y_pred = grid_search.predict(X_test)
         
-        PredictionErrorDisplay.from_estimator(grid_search, X_test, y_test)
+        utils.plot_2vectors(label=y_test, pred=y_pred, save=False, name=None, path=None)
+        #PredictionErrorDisplay.from_estimator(grid_search, X_test, y_test)
         best_title = 'Best Model: ' + names[j]
         plt.title(best_title)
 
