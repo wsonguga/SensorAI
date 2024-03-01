@@ -1,7 +1,7 @@
 # SensorAI
 Sensor data science and AI tutorial
 
-# Citation 
+## Citation 
 
 Bib: 
 
