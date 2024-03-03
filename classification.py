@@ -3659,6 +3659,7 @@ def pipeBuild_TimeSeriesSVC(C=[1.0],kernel=['gak'],degree=[3],gamma=['auto'],coe
   }]
   return pipeline, params
 
+# CLASSIFICATON GRID BUILDER
 def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_mean_squared_error',plot_number=10):
     # iterate over classifiers
     for j in range(len(names)):
@@ -3687,6 +3688,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
         count = 0
         current_label = 0
         plot_num = 0
+        color = 'black'
         if isinstance(plot_number,int) and plot_number > 0 and plot_number <= 10:
             while current_label < n_classes:
                 while count < len(y_test):
@@ -3710,6 +3712,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
         fig.show()
     return
 
+# MAIN
 if __name__ == '__main__':
   p = Path('.')
   datapath = p / "test_data/"
