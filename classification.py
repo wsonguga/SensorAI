@@ -3683,7 +3683,8 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
             j = j+1
         fig = make_subplots(
             rows=plot_number, cols=n_classes,
-            subplot_titles=titles)
+            subplot_titles=titles,
+            showlegend=False)
 
         count = 0
         current_label = 0
@@ -3698,8 +3699,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
                             color = 'red'
                         fig.add_trace(
                             go.Scatter(mode='markers',x=x_axis,y=X_test[count],marker=dict(color=color)),
-                            row=plot_num+1, col=current_label+1,
-                            showlegend=False
+                            row=plot_num+1, col=current_label+1                            
                         )                       
                         plot_num = plot_num +1
                     count = count + 1
