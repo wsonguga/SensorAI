@@ -3688,21 +3688,19 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
         count = 0
         current_label = 0
         plot_num = 0
-        color = 'black'
         if isinstance(plot_number,int) and plot_number > 0 and plot_number <= 10:
             while current_label < n_classes:
                 while count < len(y_test):
                     if y_test[count] == current_label and plot_num < plot_number:
+                        if y_pred[count] == y_test[count]:
+                            color = 'black'
+                        else:
+                            color = 'red'
                         fig.add_trace(
                             go.Scatter(x=x_axis,y=X_test[count]),
-                            row=plot_num+1, col=current_label+1
+                            row=plot_num+1, col=current_label+1,color=color
                         )                        
                         plot_num = plot_num +1
-                    if y_pred[count] == y_test[count]:
-                        color = 'black'
-                    else:
-                        color = 'red'
-                    fig.update_traces(line_color=color)
                     count = count + 1
                 current_label = current_label +1
                 plot_num = 0
