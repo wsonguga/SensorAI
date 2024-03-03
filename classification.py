@@ -3698,7 +3698,12 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
                             color = 'red'
                         fig.add_trace(
                             go.Scatter(x=x_axis,y=X_test[count]),
-                            row=plot_num+1, col=current_label+1,marker = dict(color = color)
+                            row=plot_num+1, col=current_label+1,
+                            marker=dict(
+                                color=color
+                                line=dict(
+                                    color=color
+                                ))
                         )                        
                         plot_num = plot_num +1
                     count = count + 1
