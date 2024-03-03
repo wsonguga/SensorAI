@@ -3700,7 +3700,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
                             go.Scatter(x=x_axis,y=X_test[count]),
                             row=plot_num+1, col=current_label+1,
                             marker=dict(
-                                color=color
+                                color=color,
                                 line=dict(
                                     color=color
                                 ))
