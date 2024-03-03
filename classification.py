@@ -3659,6 +3659,57 @@ def pipeBuild_TimeSeriesSVC(C=[1.0],kernel=['gak'],degree=[3],gamma=['auto'],coe
   }]
   return pipeline, params
 
+def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_mean_squared_error',plot_number=10):
+    # iterate over classifiers
+    for j in range(len(names)):
+
+        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
+        grid_search.fit(X_train, y_train)
+        score = grid_search.score(X_test, y_test)
+        print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
+        print(grid_search.best_params_)
+        y_pred = grid_search.predict(X_test)
+        print(classification_report(y_test, y_pred))
+        ConfusionMatrixDisplay.from_estimator(grid_search, X_test, y_test, xticks_rotation="vertical")
+                   
+        n_classes = int(np.amax(y_test)+1) 
+        x_axis = np.arange(len(X_test[0]))
+        j = 0
+        titles = []
+        while j < n_classes:
+            name = "Class " + str(j)
+            titles.append(name)
+            j = j+1
+        fig = make_subplots(
+            rows=plot_number, cols=n_classes,
+            subplot_titles=titles)
+
+        count = 0
+        current_label = 0
+        plot_num = 0
+        if isinstance(plot_number,int) and plot_number > 0 and plot_number <= 10:
+            while current_label < n_classes:
+                while count < len(y_test):
+                    if y_test[count] == current_label and plot_num < plot_number:
+                        fig.add_trace(
+                            go.Scatter(x=x_axis,y=X_test[count]),
+                            row=plot_num+1, col=current_label+1
+                        )                        
+                        plot_num = plot_num +1
+                    if y_pred[count] == y_test[count]:
+                        color = 'black'
+                    else:
+                        color = 'red'
+                    fig.update_traces(line_color=color)
+                    count = count + 1
+                current_label = current_label +1
+                plot_num = 0
+                count = 0
+        else:
+            print("Incorrect plot number value entered")
+        fig.show()
+    return
+
 if __name__ == '__main__':
   p = Path('.')
   datapath = p / "test_data/"

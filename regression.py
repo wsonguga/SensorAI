@@ -29,6 +29,8 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, auc, roc_curve, roc_auc_score
 from sklearn.metrics import PredictionErrorDisplay 
 
+import utils
+
 #import load_data as ld
 
 algo_list = ['svr','nusvr','linear svr','ridge','ridge cv','linear regression','sgd','ard','bayesian ridge','passive aggressive','gamma','poisson','tweedie','huber','quantile','ranscar','thielsen','elasticnet','elasticnet cv','multitask elastic net','multitask elastic net cv','lars','lasso','lasso cv','lasso lars','lasso lars cv','lasso lars ic','orthogonal matching pursuit','orthogonal matching pursuit cv','ts knn','ts svr','perceptron']
@@ -658,6 +660,26 @@ def pipeBuild_OrthogonalMatchingPursuitCV(copy=[True], fit_intercept=[True],
         'ompcv__verbose': verbose,
     }]
   return pipeline, params
+
+# REGRESSOR GRID BUILDER
+def gridsearch_regressor(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_mean_squared_error'):
+    # iterate over regressors
+    for j in range(len(names)):
+
+        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
+        grid_search.fit(X_train, y_train)
+        score = grid_search.score(X_test, y_test)
+        print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
+        print(grid_search.best_params_)
+        y_pred = grid_search.predict(X_test)
+        
+        plt = utils.plot_2vectors(label=y_test, pred=y_pred, name=names[j], size=10)
+        #PredictionErrorDisplay.from_estimator(grid_search, X_test, y_test)
+        best_title = 'Best Model: ' + names[j]
+        plt.title(best_title)
+
+        plt.show()
+    return
 
 if __name__ == '__main__':
   p = Path('.')

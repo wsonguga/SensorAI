@@ -1673,6 +1673,66 @@ def pipeBuild_HDBSCAN(min_cluster_size=[5], min_samples=[None], cluster_selectio
   return pipeline, params
 #"""
 
+# CLUSTERING GIRD BUILDER
+def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'):
+  # iterate over cluterers
+  for j in range(len(names)):
+
+        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
+        grid_search.fit(X, y)
+        #score = grid_search.score(X, y)
+        print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
+        print(grid_search.best_params_)
+        print("Best "+scoring+"score: ",grid_search.best_score_)
+        labels = grid_search.best_estimator_.steps[0][1].labels_
+        #print("Best Model Labels: ",labels)
+        noise = np.isin(labels, -1)
+        if np.any(noise)==True:
+            new_noise_label = int(np.amax(labels)+1) # find the max label value
+            labels = np.where(labels == -1, new_noise_label, labels)
+            
+
+        x_classes = int(np.amax(labels)+1)
+        y_classes = int(np.amax(y)+1)
+        print("# of X's classes is: ",x_classes)
+        print("# of y's classes is: ",y_classes)
+        if x_classes > y_classes:
+            n_classes = x_classes
+        else:
+            n_classes = y_classes  
+        x_axis = np.arange(len(X[0]))
+
+        j = 0
+        titles = []
+        while j < n_classes:
+            name = "Class " + str(j)
+            titles.append(name)
+            j = j+1
+        fig = make_subplots(
+            rows=plot_number, cols=n_classes,
+            subplot_titles=titles)
+
+      
+        count = 0
+        current_label = 0
+        plot_num = 0
+        if isinstance(plot_number,int) and plot_number > 0 and plot_number <= 10:
+            while current_label < n_classes:
+                while count < len(y):
+                    if labels[count] == current_label and plot_num < plot_number:
+                        fig.add_trace(
+                            go.Scatter(x=x_axis,y=X[count]),
+                            row=plot_num+1, col=current_label+1
+                        )
+                        plot_num = plot_num +1
+                    count = count + 1
+                current_label = current_label +1
+                plot_num = 0
+                count = 0
+        else:
+            print("Incorrect plot number value entered")
+        fig.show()
+
 if __name__ == '__main__':
   p = Path('.')
   datapath = p / "test_data/"

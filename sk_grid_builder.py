@@ -25,7 +25,6 @@ from sklearn.neural_network import BernoulliRBM
 from sklearn.metrics.cluster import adjusted_rand_score, rand_score, mutual_info_score, normalized_mutual_info_score
 from sklearn.metrics import PredictionErrorDisplay
 
-from plotly.subplots import make_subplots
 import utils
 
 def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_mean_squared_error',plot_number=10):
