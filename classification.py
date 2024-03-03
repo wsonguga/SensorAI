@@ -3683,8 +3683,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
             j = j+1
         fig = make_subplots(
             rows=plot_number, cols=n_classes,
-            subplot_titles=titles,
-            showlegend=False)
+            subplot_titles=titles)
 
         count = 0
         current_label = 0
@@ -3708,6 +3707,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
                 count = 0
         else:
             print("Incorrect plot number value entered")
+        fig.update_layout(showlegend=False)
         fig.show()
     return
 
