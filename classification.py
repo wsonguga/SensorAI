@@ -3704,7 +3704,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
                                 line_shape='linear',
                                 marker=dict(
                                   color=color,
-                                  size = 1,
+                                  size = 2,
                                   )),
                             row=plot_num+1, col=current_label+1                            
                         )                       
