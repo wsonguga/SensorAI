@@ -2358,7 +2358,7 @@ def scg_simulate(**kwargs):
         diastolic: default = (80,100)
             The range of the diastolic
         pulse_type: default = "db"
-            Type of wavelet to form a basic waveform of SCG
+            Type of wavelet to form a basic waveform of SCG. Currently, we can choose "db", "mor", "ricker" and "sym"
         noise_type: default = ["basic"]
             Type of added noise
         noise_shape: default = "laplace"
