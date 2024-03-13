@@ -2465,7 +2465,7 @@ def scg_simulate(**kwargs):
 
     simulated_data = np.asarray(simulated_data)
     if args['num_rows'] == 1:
-        return simulated_data
+        return simulated_data.flatten()
     else:
         np.save(args['data_file'], simulated_data)
         print(f"{args['data_file']} is generated and saved!")
