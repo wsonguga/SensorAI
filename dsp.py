@@ -31,16 +31,6 @@ with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from fastsst import SingularSpectrumTransformation
 
-# def load_demo(noise_level=0, signal_idx=0):
-#
-#     signals_clean, labels_clean, duration, fs = load_scg(noise_level, 'train')
-#     signal = signals_clean[signal_idx]
-#     sampling_rate = fs
-#     time = np.linspace(0, duration, sampling_rate * duration, endpoint=False)
-#
-#     return signal, time, duration, sampling_rate
-
-
 
 # ==============================================================================
 # ------------------------------------Waves-------------------------------------
@@ -908,6 +898,725 @@ def add_distort_noise(
 # ==============================================================================
 # ------------------------------------Noise-------------------------------------
 # ==============================================================================
+# ------------------------- --Complex Wave Generation---------------------------
+# ==============================================================================
+
+## SCG generation
+def scg_simulate(**kwargs):
+    """
+    Description:
+        The main function to generate a synthetic SCG dataset
+    Args:
+        num_rows: default = 1
+            Number of samples in the dataset
+        duration: default = 10 
+            Length of signal
+        sampling_rate: default = 100
+            Sampling rate of signal
+        heart_rate: default = (50,150)
+            The range of heart rate
+        add_respiratory: default = True
+            Whether to add respiratory
+        respiratory_rate: default = (10,30)
+            The range of the respiratory_rate
+        systolic: default = (90,140)
+            The range of the systolic
+        diastolic: default = (80,100)
+            The range of the diastolic
+        pulse_type: default = "db"
+            Type of wavelet to form a basic waveform of SCG
+        noise_type: default = ["basic"]
+            Type of added noise
+        noise_shape: default = "laplace"
+            Shape of the basic noise
+        noise_amplitude: default = 0.1
+            Amplitude of basic noise
+        noise_frequency: default = [5,10,100]
+            Frequency of basic noise
+        powerline_amplitude: default = 0
+            Amplitude of the powerline noise (relative to the standard deviation of the signal)
+        powerline_frequency: default = 50
+            Frequency of the powerline noise 
+        artifacts_amplitude: default = 0
+            Amplitude of the artifacts (relative to the standard deviation of the signal)
+        artifacts_frequency: default = 100
+            Frequency of the artifacts
+        artifacts_number: default = 5
+            Number of artifact bursts. The bursts have a random duration between 1 and 10% of the signal duration
+        artifacts_shape: default = "laplace"
+            Shape of the artifacts
+        n_echo: default = 3
+            Number of echo repetitions to add
+        attenuation_factor: default = [0.1, 0.05, 0.02]
+            List of attenuation factors for each echo
+        delay_factor: default = [5] * 3
+            List of delay factors (in samples) for each echo
+        random_state: default = None
+            Seed for the random number generator. Keep it fixed for reproducible results
+        silent: default = False
+            Whether or not to display warning messages
+        data_file: default = "./data.npy"
+            The path to generate the dataset
+    Returns:
+        A synthetic SCG dataset in the specified path
+    """
+    args = {
+        'num_rows' : 1,
+        'duration' : 10, 
+        'sampling_rate' : 100,
+        'heart_rate' : (50,150),
+        'add_respiratory' : True,
+        'respiratory_rate' : (10,30),
+        'systolic' : (90,140),
+        'diastolic' : (60,100),
+        'pulse_type' : "db",
+        'noise_type' : ["basic"],
+        'noise_shape' : "laplace",
+        'noise_amplitude' : 0.1,
+        'noise_frequency' : [5,10,100],
+        'powerline_amplitude' : 0,
+        'powerline_frequency' : 50,
+        'artifacts_amplitude' : 0,
+        'artifacts_frequency' : 100,
+        'artifacts_number' : 5,
+        'artifacts_shape' : "laplace",
+        'n_echo' : 3, 
+        'attenuation_factor' : [0.1, 0.05, 0.02],
+        'delay_factor' : [5] * 3,
+        'random_state' : None,
+        'silent' : False,
+        'data_file' : "./data.npy"
+    }
+
+    args.update(kwargs)
+    simulated_data = []
+
+    for ind in tqdm(range(args['num_rows'])):
+        heart_rate = random.randint(args['heart_rate'][0], args['heart_rate'][1])
+        respiratory_rate = random.randint(args['respiratory_rate'][0], args['respiratory_rate'][1])
+
+        systolic = random.randint(args['systolic'][0], args['systolic'][1])
+        diastolic = random.randint(args['diastolic'][0], args['diastolic'][1])
+
+        print('hr:', heart_rate, 'rr:', respiratory_rate, 
+              'sp:', systolic, 'dp:', diastolic)
+       
+        data = _scg_simulate(
+            duration = args['duration'], 
+            sampling_rate = args['sampling_rate'], 
+            heart_rate = heart_rate,  
+            add_respiratory = args['add_respiratory'],
+            respiratory_rate = respiratory_rate, 
+            systolic = systolic, 
+            diastolic = diastolic, 
+            pulse_type = args['pulse_type'], 
+            noise_type  =  args['noise_type'],
+            noise_shape =  args['noise_shape'],
+            noise_amplitude =  args['noise_amplitude'],
+            noise_frequency = args['noise_frequency'],
+            powerline_amplitude = args['powerline_amplitude'],
+            powerline_frequency = args['powerline_frequency'],
+            artifacts_amplitude = args['artifacts_amplitude'],
+            artifacts_frequency = args['artifacts_frequency'],
+            artifacts_number = args['artifacts_number'],
+            artifacts_shape = args['artifacts_shape'],
+            n_echo = args['n_echo'], 
+            attenuation_factor = args['attenuation_factor'],
+            delay_factor = args['delay_factor'],
+            random_state = args['random_state'],
+            silent = args['silent']
+        )
+        ## duration * sampling_rate + 6 size. 6 are [mat_int(here 0 for synthetic data), time_stamp, hr, rr, sbp, dbp]
+        simulated_data.append(list(data)+[0]+[ind]+[heart_rate]+[respiratory_rate]+[systolic]+[diastolic])
+
+    simulated_data = np.asarray(simulated_data)
+    if args['num_rows'] == 1:
+        return simulated_data.flatten()
+    else:
+        np.save(args['data_file'], simulated_data)
+        print(f"{args['data_file']} is generated and saved!")
+
+def _scg_simulate(**kwargs):
+    """
+    Description:
+        Generate a synthetic scg signal of a given duration and sampling rate to roughly approximate cardiac cycles.
+    Args:
+        duration: length of signal
+        sampling_rate: sampling rate of signal
+        heart_rate: the range of heart rate
+        add_respiratory: whether to add respiratory
+        respiratory_rate: value of respiratory rate
+        systolic: value of systolic
+        diastolic: value of diastolic
+        pulse_type: type of wavelet to form a basic waveform of SCG
+        noise_type: type of added noise
+        noise_shape: shape of the basic noise
+        noise_amplitude: amplitude of basic noise
+        noise_frequency: frequency of basic noise
+        powerline_amplitude: amplitude of the powerline noise (relative to the standard deviation of the signal)
+        powerline_frequency: frequency of the powerline noise 
+        artifacts_amplitude: amplitude of the artifacts (relative to the standard deviation of the signal)
+        artifacts_frequency: frequency of the artifacts
+        artifacts_number: number of artifact bursts. The bursts have a random duration between 1 and 10% of the signal duration
+        artifacts_shape: shape of the artifacts
+        n_echo: number of echo repetitions to add
+        attenuation_factor: list of attenuation factors for each echo
+        delay_factor: list of delay factors (in samples) for each echo
+        random_state: seed for the random number generator. Keep it fixed for reproducible results
+        silent: whether or not to display warning messages
+    Returns
+        scg: a vector of the scg signal.
+    """
+    args = {
+        'duration' : 10, 
+        'sampling_rate' : 100, 
+        'heart_rate' : 70, 
+        'add_respiratory': True,
+        'respiratory_rate' : 20, 
+        'systolic' : 120, 
+        'diastolic' : 80, 
+        'pulse_type' : "db", 
+        'noise_type'  :  ["basic"],
+        'noise_shape' : "laplace",
+        'noise_amplitude' : 0,
+        'noise_frequency' : [5,10,100],
+        'powerline_amplitude' : 0,
+        'powerline_frequency' : 50,
+        'artifacts_amplitude' : 0,
+        'artifacts_frequency' : 100,
+        'artifacts_number' : 5,
+        'artifacts_shape' : "laplace",
+        'n_echo' : 3, 
+        'attenuation_factor' : [0.1, 0.05, 0.02],
+        'delay_factor' : [5] * 3,
+        'random_state' : None,
+        'silent' : False
+    }
+
+    args.update(kwargs)
+
+    # Seed the random generator for reproducible results
+    np.random.seed(args['random_state'])
+
+    scg = _scg_simulate_wavelet(
+        duration = args['duration'],
+        sampling_rate = args['sampling_rate'],
+        heart_rate = args['heart_rate'],
+        add_respiratory = args['add_respiratory'],
+        respiratory_rate = args['respiratory_rate'],
+        systolic = args['systolic'],
+        diastolic = args['diastolic'],
+        pulse_type = args['pulse_type']
+    )
+
+    # Add random noise
+    if args['noise_amplitude'] > 0:
+        scg = signal_distort(
+            signal = scg,
+            sampling_rate = args['sampling_rate'],
+            noise_type  =  args['noise_type'],
+            noise_shape = args['noise_shape'],
+            noise_amplitude = args['noise_amplitude'],
+            noise_frequency = args['noise_frequency'],
+            powerline_amplitude = args['powerline_amplitude'],
+            powerline_frequency = args['powerline_frequency'],
+            artifacts_amplitude = args['artifacts_amplitude'],
+            artifacts_frequency = args['artifacts_frequency'],
+            artifacts_number = args['artifacts_number'],
+            artifacts_shape = args['artifacts_shape'],
+            n_echo = args['n_echo'], 
+            attenuation_factor = args['attenuation_factor'],
+            delay_factor = args['delay_factor'],
+            random_state = args['random_state'],
+            silent = args['silent']
+        )
+
+    # Reset random seed (so it doesn't affect global)
+    np.random.seed(None)
+    return scg
+
+
+def _scg_simulate_wavelet(**kwargs):
+    """
+    Description:
+        Generate a synthetic scg signal of given pulse type without noise
+    Args:
+        duration: length of signal
+        sampling_rate: sampling rate of signal
+        heart_rate: the range of heart rate
+        add_respiratory: whether to add respiratory
+        respiratory_rate: value of respiratory rate
+        systolic: value of systolic
+        diastolic: value of diastolic
+        pulse_type: type of wavelet to form a basic waveform of SCG
+    Returns:
+        scg: a scg signal of given pulse type without noise
+    """
+    args = {
+        'duration' : 10, 
+        'sampling_rate' : 100, 
+        'heart_rate' : 70, 
+        'add_respiratory' : True,
+        'respiratory_rate' : 20, 
+        'systolic' : 120, 
+        'diastolic' : 80, 
+        'pulse_type' : "db"
+    }
+
+    args.update(kwargs)
+
+    cardiac_length = int(100 * args['sampling_rate'] / args['heart_rate']) 
+    
+    if args['pulse_type'] == "db":
+        ind = random.randint(17, 34) 
+        db = pywt.Wavelet(f'db{ind}')
+        dec_lo, dec_hi, rec_lo, rec_hi = db.filter_bank
+        dec_lo = np.array(dec_lo)[::-1]
+        cardiac_s = dec_lo
+        cardiac_d = dec_lo * 0.3 * args['diastolic'] / 80 # change height to 0.3
+        cardiac_s = scipy.signal.resample(cardiac_s, 100)
+        cardiac_d = scipy.signal.resample(cardiac_d, 100)
+        
+    elif args['pulse_type'] == "mor":
+        ind = random.randint(5, 55)
+        cardiac_s = scipy.signal.morlet(40,ind/10).real
+        cardiac_d = scipy.signal.morlet(40,ind/10).real * 0.3 * args['diastolic'] / 80 # change height to 0.3
+        cardiac_s = np.concatenate((cardiac_s,np.zeros(60)))
+        cardiac_d = np.concatenate((cardiac_d,np.zeros(60)))
+
+    elif args['pulse_type'] == "ricker":
+        ind = random.randint(10, 30)
+        cardiac_s = scipy.signal.ricker(40,ind/10)
+        cardiac_d = scipy.signal.ricker(40,ind/10)*0.3 * args['diastolic'] / 80 # change height to 0.3
+        cardiac_s = np.concatenate((cardiac_s,np.zeros(60)))
+        cardiac_d = np.concatenate((cardiac_d,np.zeros(60)))
+        
+    elif args['pulse_type'] == "sym":
+        index = np.array([3, 5, 7, 9, 11, 12, 13, 14, 15, 16, 17, 19])
+        ind = np.random.choice(index)
+        wavelet = pywt.Wavelet(f"sym{ind}")
+        phi, psi, x = wavelet.wavefun(level=1)
+        psi = np.concatenate((psi,np.zeros(100-len(psi))))
+        cardiac_s = psi
+        cardiac_d = psi * args['diastolic'] / 80 # change height to 0.3
+    
+    else:
+        raise Exception("The pulse_type contains: db, mor, ricker, sym")
+
+    cardiac_s = cardiac_s[0:40]
+    distance = 180 - args['systolic'] 
+    zero_signal = np.zeros(distance)
+    cardiac = np.concatenate([cardiac_s, zero_signal, cardiac_d])
+    cardiac = scipy.signal.resample(cardiac, cardiac_length) # fix every cardiac length to 1000/heart_rate
+
+    # Caculate the number of beats in capture time period
+    num_heart_beats = int(args['duration'] * args['heart_rate'] / 60)
+
+    # Concatenate together the number of heart beats needed
+    scg = np.tile(cardiac, num_heart_beats)
+
+    # Resample
+    scg = signal_resample(
+        scg, 
+        sampling_rate = int(len(scg) / 10),
+        desired_length = args['sampling_rate'] * args['duration'],
+        desired_sampling_rate = args['sampling_rate']
+    )
+    
+    ### add rr
+    if args['add_respiratory']:
+        num_points = args['duration'] * args['sampling_rate']
+        x_space = np.linspace(0,1,num_points)
+        seg_fre = args['respiratory_rate'] / (60 / args['duration'])
+        seg_amp = max(scg) * 0.00001
+        rr_component = seg_amp * np.sin(2 * np.pi * seg_fre * x_space)
+        scg *= (rr_component + 2 * seg_amp)
+    else:
+        scg *= 0.00001
+
+    return scg
+
+def signal_resample(
+    signal,
+    desired_length=None,
+    sampling_rate=None,
+    desired_sampling_rate=None
+):
+    """
+    Description:
+        Resample a continuous signal to a different length or sampling rate
+    Args:
+        signal: signal in the form of a vector of values.
+        desired_length: desired length of the signal.
+        sampling_rate: original sampling frequency
+        desired_sampling_rate : desired sampling frequency
+    Returns:
+        resampled: a vector containing resampled signal values.
+    """
+    if desired_length is None:
+        desired_length = int(np.round(len(signal) * desired_sampling_rate / sampling_rate))
+
+    # Sanity checks
+    if len(signal) == desired_length:
+        return signal
+
+    # Resample
+    resampled = scipy.ndimage.zoom(signal, desired_length / len(signal))
+    
+    return resampled
+
+
+def signal_distort(**kwargs):
+    """
+    Description:
+        Add noise of a given frequency, amplitude and shape to a signal.
+    Args:
+        signal: signal to distort
+        sampling_rate: sampling rate of signal
+        noise_type: type of added noise
+        noise_shape: shape of the basic noise
+        noise_amplitude: amplitude of basic noise
+        noise_frequency: frequency of basic noise
+        powerline_amplitude: amplitude of the powerline noise (relative to the standard deviation of the signal)
+        powerline_frequency: frequency of the powerline noise 
+        artifacts_amplitude: amplitude of the artifacts (relative to the standard deviation of the signal)
+        artifacts_frequency: frequency of the artifacts
+        artifacts_number: number of artifact bursts. The bursts have a random duration between 1 and 10% of the signal duration
+        artifacts_shape: shape of the artifacts
+        n_echo: number of echo repetitions to add
+        attenuation_factor: list of attenuation factors for each echo
+        delay_factor: list of delay factors (in samples) for each echo
+        random_state: seed for the random number generator. Keep it fixed for reproducible results
+        silent: whether or not to display warning messages
+    Returns
+        distorted: a vector containing the distorted signal
+    """
+    args = {
+        'signal' : None,
+        'sampling_rate' : 100,
+        'noise_type' : ["basic"],
+        'noise_shape' : "laplace",
+        'noise_amplitude' : 0.1,
+        'noise_frequency' : [5,10,100],
+        'powerline_amplitude' : 0,
+        'powerline_frequency' : 50,
+        'artifacts_amplitude' : 0,
+        'artifacts_frequency' : 100,
+        'artifacts_number' : 5,
+        'artifacts_shape' : "laplace",
+        'n_echo' : 3, 
+        'attenuation_factor' : [0.1, 0.05, 0.02],
+        'delay_factor' : [5] * 3,
+        'random_state' : None,
+        'silent' : False,
+    }
+
+    args.update(kwargs)
+
+    # Seed the random generator for reproducible results.
+    np.random.seed(args['random_state'])
+
+    # Make sure that noise_amplitude is a list.
+    if isinstance(args['noise_amplitude'], (int, float)):
+        noise_amplitude = [args['noise_amplitude']]
+
+    signal_sd = np.std(args['signal'], ddof=1)
+    if signal_sd == 0:
+        signal_sd = None
+
+    noise = 0
+
+    # Basic noise.
+    if "basic" in args['noise_type']:
+        if min(noise_amplitude) > 0:
+            noise += _signal_distort_noise_multifrequency(
+                args['signal'],
+                signal_sd = signal_sd,
+                sampling_rate = args['sampling_rate'],
+                noise_amplitude = args['noise_amplitude'],
+                noise_frequency = args['noise_frequency'],
+                noise_shape = args['noise_shape'],
+                silent = args['silent'],
+            )
+            
+    if "resonance" in args['noise_type']:
+        noise += _signal_distort_resonance(
+            signal = args['signal'], 
+            n_echo = args['n_echo'],
+            attenuation_factor = args['attenuation_factor'],
+            delay_factor = args['delay_factor']
+        )
+        
+
+    # Powerline noise.
+    if "powerline" in args['noise_type']:
+        if args['powerline_amplitude'] > 0:
+            noise += _signal_distort_powerline(
+                signal = args['signal'],
+                signal_sd = signal_sd,
+                sampling_rate = args['sampling_rate'],
+                powerline_frequency = args['powerline_frequency'],
+                powerline_amplitude = args['powerline_amplitude'],
+                silent = args['silent']
+            )
+    
+    # Artifacts.
+    if "artifacts" in args['noise_type']:
+        if args['artifacts_amplitude'] > 0:
+            noise += _signal_distort_artifacts(
+                signal = args['signal'],
+                signal_sd = signal_sd,
+                sampling_rate = args['sampling_rate'],
+                artifacts_frequency = args['artifacts_frequency'],
+                artifacts_amplitude = args['artifacts_amplitude'],
+                artifacts_number = args['artifacts_number'],
+                silent = args['silent']
+            )
+    
+    if "linear_drift" in args['noise_type']:
+        noise += _signal_linear_drift(args['signal'])
+    
+    distorted = args['signal'] + noise
+
+    return distorted
+
+def _signal_distort_resonance(
+    signal, n_echo=3, attenuation_factor=[0.1, 0.05, 0.02], delay_factor=[5] * 3
+):
+    """
+    Description:
+        Add echo noise to a signal.
+    Args:
+        signal: input signal to which echo noise will be added.
+        n_echo: number of echo repetitions to add.
+        attenuation_factor: list of attenuation factors for each echo.
+        delay_factor: list of delay factors (in samples) for each echo.
+    Returns:
+        echo: a vector containing the echo noise
+    """
+
+    # Check the types and lengths of attenuation and delay factors
+    if not isinstance(attenuation_factor, (list, np.ndarray)):
+        raise ValueError("The type of attenuation_factor must be a list or numpy.ndarray")
+    if not isinstance(delay_factor, (list, np.ndarray)):
+        raise ValueError("The type of delay_factor must be a list or numpy.ndarray")
+    if len(attenuation_factor) != n_echo or len(delay_factor) != n_echo:
+        raise ValueError("The lengths of attenuation_factor and delay_factor should be equal to n_echo")
+
+    # Create a copy of the original signal
+    original_signal = signal.copy()
+    echos = np.zeros(shape=original_signal.shape)
+    # Iterate over each echo and apply attenuation and delay
+    for a_factor, d_factor in zip(attenuation_factor, delay_factor):
+        # Apply attenuation to the signal
+        attenuation_signal = original_signal * a_factor
+
+        # Shift the attenuated signal to create the echo effect
+        attenuation_signal[d_factor:] = attenuation_signal[:-d_factor]
+        attenuation_signal[:d_factor] = 0
+
+        # Add the attenuated and delayed signal to the original signal
+        echos += attenuation_signal
+
+    return echos
+
+def _signal_linear_drift(signal):
+
+    n_samples = len(signal)
+    linear_drift = np.arange(n_samples) * (1 / n_samples)
+
+    return linear_drift
+
+
+def _signal_distort_artifacts(
+    signal,
+    signal_sd=None,
+    sampling_rate=100,
+    artifacts_frequency=100,
+    artifacts_amplitude=0,
+    artifacts_number=5,
+    artifacts_shape="laplace",
+    silent=False,
+):
+
+    # Generate artifact burst with random onset and random duration.
+    artifacts = _signal_distort_noise(
+        len(signal),
+        sampling_rate=sampling_rate,
+        noise_frequency=artifacts_frequency,
+        noise_amplitude=artifacts_amplitude,
+        noise_shape=artifacts_shape,
+        silent=silent,
+    )
+    if artifacts.sum() == 0:
+        return artifacts
+
+    min_duration = int(np.rint(len(artifacts) * 0.001))
+    max_duration = int(np.rint(len(artifacts) * 0.01))
+    artifact_durations = np.random.randint(min_duration, max_duration, artifacts_number)
+
+    artifact_onsets = np.random.randint(0, len(artifacts) - max_duration, artifacts_number)
+    artifact_offsets = artifact_onsets + artifact_durations
+
+    artifact_idcs = np.array([False] * len(artifacts))
+    for i in range(artifacts_number):
+        artifact_idcs[artifact_onsets[i] : artifact_offsets[i]] = True
+
+    artifacts[~artifact_idcs] = 0
+
+    # Scale amplitude by the signal's standard deviation.
+    if signal_sd is not None:
+        artifacts_amplitude *= signal_sd
+    artifacts *= artifacts_amplitude
+
+    return artifacts
+
+
+def _signal_distort_powerline(
+    signal, signal_sd=None, sampling_rate=100, powerline_frequency=50, powerline_amplitude=0, silent=False
+):
+
+    duration = len(signal) / sampling_rate
+    powerline_noise = signal_simulate(
+        duration=duration, sampling_rate=sampling_rate, frequency=powerline_frequency, amplitude=1, silent=silent
+    )
+
+    if signal_sd is not None:
+        powerline_amplitude *= signal_sd
+    powerline_noise *= powerline_amplitude
+
+    return powerline_noise
+
+
+def _signal_distort_noise_multifrequency(
+    signal,
+    signal_sd=None,
+    sampling_rate=100,
+    noise_amplitude=0.1,
+    noise_frequency=[5, 10, 100],
+    noise_shape="laplace",
+    silent=False,
+):
+    base_noise = np.zeros(len(signal))
+    params = listify(noise_amplitude=noise_amplitude, noise_frequency=noise_frequency, noise_shape=noise_shape)
+
+    for i in range(len(params["noise_amplitude"])):
+
+        freq = params["noise_frequency"][i]
+        amp = params["noise_amplitude"][i]
+        shape = params["noise_shape"][i]
+
+        if signal_sd is not None:
+            amp *= signal_sd
+
+        # Make some noise!
+        _base_noise = _signal_distort_noise(
+            len(signal),
+            sampling_rate=sampling_rate,
+            noise_frequency=freq,
+            noise_amplitude=amp,
+            noise_shape=shape,
+            silent=silent,
+        )
+        base_noise += _base_noise
+
+    return base_noise
+
+
+def _signal_distort_noise(
+    n_samples, sampling_rate=100, noise_frequency=[5, 10, 100], noise_amplitude=0.1, noise_shape="laplace", silent=False
+):
+
+    _noise = np.zeros(n_samples)
+    # Apply a very conservative Nyquist criterion in order to ensure
+    # sufficiently sampled signals.
+    nyquist = sampling_rate * 0.1
+    if noise_frequency > nyquist:
+        if not silent:
+            warnings.warn(
+                f"Skipping requested noise frequency "
+                f" of {noise_frequency} Hz since it cannot be resolved at "
+                f" the sampling rate of {sampling_rate} Hz. Please increase "
+                f" sampling rate to {noise_frequency * 10} Hz or choose "
+                f" frequencies smaller than or equal to {nyquist} Hz.",
+                category=NeuroKitWarning
+            )
+        return _noise
+    # Also make sure that at least one period of the frequency can be
+    # captured over the duration of the signal.
+    duration = n_samples / sampling_rate
+    if (1 / noise_frequency) > duration:
+        if not silent:
+            warnings.warn(
+                f"Skipping requested noise frequency "
+                f" of {noise_frequency} Hz since its period of {1 / noise_frequency} "
+                f" seconds exceeds the signal duration of {duration} seconds. "
+                f" Please choose noise frequencies larger than "
+                f" {1 / duration} Hz or increase the duration of the "
+                f" signal above {1 / noise_frequency} seconds.",
+                category=NeuroKitWarning
+            )
+        return _noise
+
+    noise_duration = int(duration * noise_frequency)
+
+    if noise_shape in ["normal", "gaussian"]:
+        _noise = np.random.normal(0, noise_amplitude, noise_duration)
+    elif noise_shape == "laplace":
+        _noise = np.random.laplace(0, noise_amplitude, noise_duration)
+    else:
+        raise ValueError("NeuroKit error: signal_distort(): 'noise_shape' should be one of 'gaussian' or 'laplace'.")
+
+    if len(_noise) != n_samples:
+        _noise = signal_resample(_noise, desired_length=n_samples)
+    return _noise
+
+class NeuroKitWarning(RuntimeWarning):
+    """
+    Description:
+        Category for runtime warnings
+    """
+
+def listify(**kwargs):
+    """
+    Description:
+        Normalizes the input keyword arguments by converting them into lists of equal length. 
+        If an argument is a single value, it is replicated to match the length of the longest 
+        input list. If an argument is a list shorter than the longest list, its last element 
+        is repeated to achieve the required length.
+
+    Args:
+        **kwargs: Variable length keyword arguments. Each can be a single non-list value or a list. 
+        Non-list values are treated as single-element lists.
+
+    Returns:
+        A dictionary with the original keys and their corresponding values extended to lists of 
+        equal length.
+    """
+    args = kwargs
+    maxi = 1
+
+    # Find max length
+    for key, value in args.items():
+        if isinstance(value, str) is False:
+            try:
+                if len(value) > maxi:
+                    maxi = len(value)
+            except TypeError:
+                pass
+
+    # Transform to lists
+    for key, value in args.items():
+        if isinstance(value, list):
+            args[key] = _multiply_list(value, maxi)
+        else:
+            args[key] = _multiply_list([value], maxi)
+
+    return args
+
+def _multiply_list(lst, length):
+    q, r = divmod(length, len(lst))
+    return q * lst + lst[:r]
 
 def standize_1D(signal):
     return (signal - signal.mean()) / signal.std()
@@ -2335,802 +3044,6 @@ def plot_psd(noise, fs=100):
     plt.show()
 
 # Time Domain
-## Generate SCG   
-def scg_simulate(**kwargs):
-    """
-    Description:
-        The main function to generate a synthetic SCG dataset
-    Args:
-        num_rows: default = 1
-            Number of samples in the dataset
-        duration: default = 10 
-            Length of signal
-        sampling_rate: default = 100
-            Sampling rate of signal
-        heart_rate: default = (50,150)
-            The range of heart rate
-        add_respiratory: default = True
-            Whether to add respiratory
-        respiratory_rate: default = (10,30)
-            The range of the respiratory_rate
-        systolic: default = (90,140)
-            The range of the systolic
-        diastolic: default = (80,100)
-            The range of the diastolic
-        pulse_type: default = "db"
-            Type of wavelet to form a basic waveform of SCG. Currently, we can choose "db", "mor", "ricker" and "sym"
-        noise_type: default = ["basic"]
-            Type of added noise
-        noise_shape: default = "laplace"
-            Shape of the basic noise
-        noise_amplitude: default = 0.1
-            Amplitude of basic noise
-        noise_frequency: default = [5,10,100]
-            Frequency of basic noise
-        powerline_amplitude: default = 0
-            Amplitude of the powerline noise (relative to the standard deviation of the signal)
-        powerline_frequency: default = 50
-            Frequency of the powerline noise 
-        artifacts_amplitude: default = 0
-            Amplitude of the artifacts (relative to the standard deviation of the signal)
-        artifacts_frequency: default = 100
-            Frequency of the artifacts
-        artifacts_number: default = 5
-            Number of artifact bursts. The bursts have a random duration between 1 and 10% of the signal duration
-        artifacts_shape: default = "laplace"
-            Shape of the artifacts
-        n_echo: default = 3
-            Number of echo repetitions to add
-        attenuation_factor: default = [0.1, 0.05, 0.02]
-            List of attenuation factors for each echo
-        delay_factor: default = [5] * 3
-            List of delay factors (in samples) for each echo
-        random_state: default = None
-            Seed for the random number generator. Keep it fixed for reproducible results
-        silent: default = False
-            Whether or not to display warning messages
-        data_file: default = "./data.npy"
-            The path to generate the dataset
-    Returns:
-        A synthetic SCG dataset in the specified path
-    """
-    args = {
-        'num_rows' : 1,
-        'duration' : 10, 
-        'sampling_rate' : 100,
-        'heart_rate' : (50,150),
-        'add_respiratory' : True,
-        'respiratory_rate' : (10,30),
-        'systolic' : (90,140),
-        'diastolic' : (60,100),
-        'pulse_type' : "db",
-        'noise_type' : ["basic"],
-        'noise_shape' : "laplace",
-        'noise_amplitude' : 0.1,
-        'noise_frequency' : [5,10,100],
-        'powerline_amplitude' : 0,
-        'powerline_frequency' : 50,
-        'artifacts_amplitude' : 0,
-        'artifacts_frequency' : 100,
-        'artifacts_number' : 5,
-        'artifacts_shape' : "laplace",
-        'n_echo' : 3, 
-        'attenuation_factor' : [0.1, 0.05, 0.02],
-        'delay_factor' : [5] * 3,
-        'random_state' : None,
-        'silent' : False,
-        'data_file' : "./data.npy"
-    }
-
-    args.update(kwargs)
-    simulated_data = []
-
-    for ind in tqdm(range(args['num_rows'])):
-        heart_rate = random.randint(args['heart_rate'][0], args['heart_rate'][1])
-        respiratory_rate = random.randint(args['respiratory_rate'][0], args['respiratory_rate'][1])
-
-        systolic = random.randint(args['systolic'][0], args['systolic'][1])
-        diastolic = random.randint(args['diastolic'][0], args['diastolic'][1])
-
-        print('hr:', heart_rate, 'rr:', respiratory_rate, 
-              'sp:', systolic, 'dp:', diastolic)
-       
-        data = _scg_simulate(
-            duration = args['duration'], 
-            sampling_rate = args['sampling_rate'], 
-            heart_rate = heart_rate,  
-            add_respiratory = args['add_respiratory'],
-            respiratory_rate = respiratory_rate, 
-            systolic = systolic, 
-            diastolic = diastolic, 
-            pulse_type = args['pulse_type'], 
-            noise_type  =  args['noise_type'],
-            noise_shape =  args['noise_shape'],
-            noise_amplitude =  args['noise_amplitude'],
-            noise_frequency = args['noise_frequency'],
-            powerline_amplitude = args['powerline_amplitude'],
-            powerline_frequency = args['powerline_frequency'],
-            artifacts_amplitude = args['artifacts_amplitude'],
-            artifacts_frequency = args['artifacts_frequency'],
-            artifacts_number = args['artifacts_number'],
-            artifacts_shape = args['artifacts_shape'],
-            n_echo = args['n_echo'], 
-            attenuation_factor = args['attenuation_factor'],
-            delay_factor = args['delay_factor'],
-            random_state = args['random_state'],
-            silent = args['silent']
-        )
-        ## duration * sampling_rate + 6 size. 6 are [mat_int(here 0 for synthetic data), time_stamp, hr, rr, sbp, dbp]
-        simulated_data.append(list(data)+[0]+[ind]+[heart_rate]+[respiratory_rate]+[systolic]+[diastolic])
-
-    simulated_data = np.asarray(simulated_data)
-    if args['num_rows'] == 1:
-        return simulated_data.flatten()
-    else:
-        np.save(args['data_file'], simulated_data)
-        print(f"{args['data_file']} is generated and saved!")
-
-def _scg_simulate(**kwargs):
-    """
-    Description:
-        Generate a synthetic scg signal of a given duration and sampling rate to roughly approximate cardiac cycles.
-    Args:
-        duration: length of signal
-        sampling_rate: sampling rate of signal
-        heart_rate: the range of heart rate
-        add_respiratory: whether to add respiratory
-        respiratory_rate: value of respiratory rate
-        systolic: value of systolic
-        diastolic: value of diastolic
-        pulse_type: type of wavelet to form a basic waveform of SCG
-        noise_type: type of added noise
-        noise_shape: shape of the basic noise
-        noise_amplitude: amplitude of basic noise
-        noise_frequency: frequency of basic noise
-        powerline_amplitude: amplitude of the powerline noise (relative to the standard deviation of the signal)
-        powerline_frequency: frequency of the powerline noise 
-        artifacts_amplitude: amplitude of the artifacts (relative to the standard deviation of the signal)
-        artifacts_frequency: frequency of the artifacts
-        artifacts_number: number of artifact bursts. The bursts have a random duration between 1 and 10% of the signal duration
-        artifacts_shape: shape of the artifacts
-        n_echo: number of echo repetitions to add
-        attenuation_factor: list of attenuation factors for each echo
-        delay_factor: list of delay factors (in samples) for each echo
-        random_state: seed for the random number generator. Keep it fixed for reproducible results
-        silent: whether or not to display warning messages
-    Returns
-        scg: a vector of the scg signal.
-    """
-    args = {
-        'duration' : 10, 
-        'sampling_rate' : 100, 
-        'heart_rate' : 70, 
-        'add_respiratory': True,
-        'respiratory_rate' : 20, 
-        'systolic' : 120, 
-        'diastolic' : 80, 
-        'pulse_type' : "db", 
-        'noise_type'  :  ["basic"],
-        'noise_shape' : "laplace",
-        'noise_amplitude' : 0,
-        'noise_frequency' : [5,10,100],
-        'powerline_amplitude' : 0,
-        'powerline_frequency' : 50,
-        'artifacts_amplitude' : 0,
-        'artifacts_frequency' : 100,
-        'artifacts_number' : 5,
-        'artifacts_shape' : "laplace",
-        'n_echo' : 3, 
-        'attenuation_factor' : [0.1, 0.05, 0.02],
-        'delay_factor' : [5] * 3,
-        'random_state' : None,
-        'silent' : False
-    }
-
-    args.update(kwargs)
-
-    # Seed the random generator for reproducible results
-    np.random.seed(args['random_state'])
-
-    scg = _scg_simulate_wavelet(
-        duration = args['duration'],
-        sampling_rate = args['sampling_rate'],
-        heart_rate = args['heart_rate'],
-        add_respiratory = args['add_respiratory'],
-        respiratory_rate = args['respiratory_rate'],
-        systolic = args['systolic'],
-        diastolic = args['diastolic'],
-        pulse_type = args['pulse_type']
-    )
-
-    # Add random noise
-    if args['noise_amplitude'] > 0:
-        scg = signal_distort(
-            signal = scg,
-            sampling_rate = args['sampling_rate'],
-            noise_type  =  args['noise_type'],
-            noise_shape = args['noise_shape'],
-            noise_amplitude = args['noise_amplitude'],
-            noise_frequency = args['noise_frequency'],
-            powerline_amplitude = args['powerline_amplitude'],
-            powerline_frequency = args['powerline_frequency'],
-            artifacts_amplitude = args['artifacts_amplitude'],
-            artifacts_frequency = args['artifacts_frequency'],
-            artifacts_number = args['artifacts_number'],
-            artifacts_shape = args['artifacts_shape'],
-            n_echo = args['n_echo'], 
-            attenuation_factor = args['attenuation_factor'],
-            delay_factor = args['delay_factor'],
-            random_state = args['random_state'],
-            silent = args['silent']
-        )
-
-    # Reset random seed (so it doesn't affect global)
-    np.random.seed(None)
-    return scg
-
-
-def _scg_simulate_wavelet(**kwargs):
-    """
-    Description:
-        Generate a synthetic scg signal of given pulse type without noise
-    Args:
-        duration: length of signal
-        sampling_rate: sampling rate of signal
-        heart_rate: the range of heart rate
-        add_respiratory: whether to add respiratory
-        respiratory_rate: value of respiratory rate
-        systolic: value of systolic
-        diastolic: value of diastolic
-        pulse_type: type of wavelet to form a basic waveform of SCG
-    Returns:
-        scg: a scg signal of given pulse type without noise
-    """
-    args = {
-        'duration' : 10, 
-        'sampling_rate' : 100, 
-        'heart_rate' : 70, 
-        'add_respiratory' : True,
-        'respiratory_rate' : 20, 
-        'systolic' : 120, 
-        'diastolic' : 80, 
-        'pulse_type' : "db"
-    }
-
-    args.update(kwargs)
-
-    cardiac_length = int(100 * args['sampling_rate'] / args['heart_rate']) 
-    
-    if args['pulse_type'] == "db":
-        ind = random.randint(17, 34) 
-        cardiac_s = scipy.signal.daub(ind)
-        cardiac_d = scipy.signal.daub(ind)* 0.3 * args['diastolic'] / 80 # change height to 0.3
-        cardiac_s = scipy.signal.resample(cardiac_s, 100)
-        cardiac_d = scipy.signal.resample(cardiac_d, 100)
-        
-    elif args['pulse_type'] == "mor":
-        ind = random.randint(5, 55)
-        cardiac_s = scipy.signal.morlet(40,ind/10).real
-        cardiac_d = scipy.signal.morlet(40,ind/10).real * 0.3 * args['diastolic'] / 80 # change height to 0.3
-        cardiac_s = np.concatenate((cardiac_s,np.zeros(60)))
-        cardiac_d = np.concatenate((cardiac_d,np.zeros(60)))
-
-    elif args['pulse_type'] == "ricker":
-        ind = random.randint(10, 30)
-        cardiac_s = scipy.signal.ricker(40,ind/10)
-        cardiac_d = scipy.signal.ricker(40,ind/10)*0.3 * args['diastolic'] / 80 # change height to 0.3
-        cardiac_s = np.concatenate((cardiac_s,np.zeros(60)))
-        cardiac_d = np.concatenate((cardiac_d,np.zeros(60)))
-        
-    elif args['pulse_type'] == "sym":
-        index = np.array([3, 5, 7, 9, 11, 12, 13, 14, 15, 16, 17, 19])
-        ind = np.random.choice(index)
-        wavelet = pywt.Wavelet(f"sym{ind}")
-        phi, psi, x = wavelet.wavefun(level=1)
-        psi = np.concatenate((psi,np.zeros(100-len(psi))))
-        cardiac_s = psi
-        cardiac_d = psi * args['diastolic'] / 80 # change height to 0.3
-    
-    else:
-        raise Exception("The pulse_type contains: db, mor, ricker, sym")
-
-    cardiac_s = cardiac_s[0:40]
-    distance = 180 - args['systolic'] 
-    zero_signal = np.zeros(distance)
-    cardiac = np.concatenate([cardiac_s, zero_signal, cardiac_d])
-    cardiac = scipy.signal.resample(cardiac, cardiac_length) # fix every cardiac length to 1000/heart_rate
-
-    # Caculate the number of beats in capture time period
-    num_heart_beats = int(args['duration'] * args['heart_rate'] / 60)
-
-    # Concatenate together the number of heart beats needed
-    scg = np.tile(cardiac, num_heart_beats)
-
-    # Resample
-    scg = signal_resample(
-        scg, sampling_rate = int(len(scg) / 10),
-        desired_length = args['sampling_rate'] * args['duration'],
-        desired_sampling_rate = args['sampling_rate']
-    )
-    
-    ### add rr
-    if args['add_respiratory']:
-        num_points = args['duration'] * args['sampling_rate']
-        x_space = np.linspace(0,1,num_points)
-        seg_fre = args['respiratory_rate'] / (60 / args['duration'])
-        seg_amp = max(scg) * 0.00001
-        rr_component = seg_amp * np.sin(2 * np.pi * seg_fre * x_space)
-        scg *= (rr_component + 2 * seg_amp)
-    else:
-        scg *= 0.00001
-
-    return scg
-
-def signal_resample(
-    signal,
-    desired_length=None,
-    sampling_rate=None,
-    desired_sampling_rate=None
-):
-    """
-    Description:
-        Resample a continuous signal to a different length or sampling rate
-    Args:
-        signal: signal in the form of a vector of values.
-        desired_length: desired length of the signal.
-        sampling_rate: original sampling frequency
-        desired_sampling_rate : desired sampling frequency
-    Returns:
-        resampled: a vector containing resampled signal values.
-    """
-    if desired_length is None:
-        desired_length = int(np.round(len(signal) * desired_sampling_rate / sampling_rate))
-
-    # Sanity checks
-    if len(signal) == desired_length:
-        return signal
-
-    # Resample
-    resampled = scipy.ndimage.zoom(signal, desired_length / len(signal))
-    
-    return resampled
-
-
-def signal_distort(**kwargs):
-    """
-    Description:
-        Add noise of a given frequency, amplitude and shape to a signal.
-    Args:
-        signal: signal to distort
-        sampling_rate: sampling rate of signal
-        noise_type: type of added noise
-        noise_shape: shape of the basic noise
-        noise_amplitude: amplitude of basic noise
-        noise_frequency: frequency of basic noise
-        powerline_amplitude: amplitude of the powerline noise (relative to the standard deviation of the signal)
-        powerline_frequency: frequency of the powerline noise 
-        artifacts_amplitude: amplitude of the artifacts (relative to the standard deviation of the signal)
-        artifacts_frequency: frequency of the artifacts
-        artifacts_number: number of artifact bursts. The bursts have a random duration between 1 and 10% of the signal duration
-        artifacts_shape: shape of the artifacts
-        n_echo: number of echo repetitions to add
-        attenuation_factor: list of attenuation factors for each echo
-        delay_factor: list of delay factors (in samples) for each echo
-        random_state: seed for the random number generator. Keep it fixed for reproducible results
-        silent: whether or not to display warning messages
-    Returns
-        distorted: a vector containing the distorted signal
-    """
-    args = {
-        'signal' : None,
-        'sampling_rate' : 100,
-        'noise_type' : ["basic"],
-        'noise_shape' : "laplace",
-        'noise_amplitude' : 0,
-        'noise_frequency' : [5,10,100],
-        'powerline_amplitude' : 0,
-        'powerline_frequency' : 50,
-        'artifacts_amplitude' : 0,
-        'artifacts_frequency' : 0,
-        'artifacts_number' : 5,
-        'artifacts_shape' : "laplace",
-        'n_echo' : 3, 
-        'attenuation_factor' : [0.1, 0.05, 0.02],
-        'delay_factor' : [5] * 3,
-        'random_state' : None,
-        'silent' : False,
-    }
-
-    args.update(kwargs)
-
-    # Seed the random generator for reproducible results.
-    np.random.seed(args['random_state'])
-
-    # Make sure that noise_amplitude is a list.
-    if isinstance(args['noise_amplitude'], (int, float)):
-        noise_amplitude = [args['noise_amplitude']]
-
-    signal_sd = np.std(args['signal'], ddof=1)
-    if signal_sd == 0:
-        signal_sd = None
-
-    noise = 0
-
-    # Basic noise.
-    if "basic" in args['noise_type']:
-        if min(noise_amplitude) > 0:
-            noise += _signal_distort_noise_multifrequency(
-                args['signal'],
-                signal_sd = signal_sd,
-                sampling_rate = args['sampling_rate'],
-                noise_amplitude = args['noise_amplitude'],
-                noise_frequency = args['noise_frequency'],
-                noise_shape = args['noise_shape'],
-                silent = args['silent'],
-            )
-            
-    if "resonance" in args['noise_type']:
-        noise += add_echo_noise(
-            signal = args['signal'], 
-            n_echo = args['n_echo'],
-            attenuation_factor = args['attenuation_factor'],
-            delay_factor = args['delay_factor']
-        )
-        
-
-    # Powerline noise.
-    if "powerline" in args['noise_type']:
-        if args['powerline_amplitude'] > 0:
-            noise += _signal_distort_powerline(
-                signal = args['signal'],
-                signal_sd = signal_sd,
-                sampling_rate = args['sampling_rate'],
-                powerline_frequency = args['powerline_frequency'],
-                powerline_amplitude = args['powerline_amplitude'],
-                silent = args['silent']
-            )
-    
-    # Artifacts.
-    if "artifacts" in args['noise_type']:
-        if args['artifacts_amplitude'] > 0:
-            noise += _signal_distort_artifacts(
-                signal = args['signal'],
-                signal_sd = signal_sd,
-                sampling_rate = args['sampling_rate'],
-                artifacts_frequency = args['artifacts_frequency'],
-                artifacts_amplitude = args['artifacts_amplitude'],
-                artifacts_number = args['artifacts_number'],
-                silent = args['silent']
-            )
-    
-    if "linear_drift" in args['noise_type']:
-        noise += _signal_linear_drift(args['signal'])
-    
-    distorted = args['signal'] + noise
-
-    return distorted
-
-def add_echo_noise(
-    signal, n_echo=3, attenuation_factor=[0.1, 0.05, 0.02], delay_factor=[5] * 3
-):
-    """
-    Description:
-        Add echo noise to a signal.
-    Args:
-        signal: input signal to which echo noise will be added.
-        n_echo: number of echo repetitions to add.
-        attenuation_factor: list of attenuation factors for each echo.
-        delay_factor: list of delay factors (in samples) for each echo.
-    Returns:
-        echo: a vector containing the echo noise
-    """
-
-    # Check the types and lengths of attenuation and delay factors
-    if not isinstance(attenuation_factor, (list, np.ndarray)):
-        raise ValueError("The type of attenuation_factor must be a list or numpy.ndarray")
-    if not isinstance(delay_factor, (list, np.ndarray)):
-        raise ValueError("The type of delay_factor must be a list or numpy.ndarray")
-    if len(attenuation_factor) != n_echo or len(delay_factor) != n_echo:
-        raise ValueError("The lengths of attenuation_factor and delay_factor should be equal to n_echo")
-
-    # Create a copy of the original signal
-    original_signal = signal.copy()
-    echos = np.zeros(shape=original_signal.shape)
-    # Iterate over each echo and apply attenuation and delay
-    for a_factor, d_factor in zip(attenuation_factor, delay_factor):
-        # Apply attenuation to the signal
-        attenuation_signal = original_signal * a_factor
-
-        # Shift the attenuated signal to create the echo effect
-        attenuation_signal[d_factor:] = attenuation_signal[:-d_factor]
-        attenuation_signal[:d_factor] = 0
-
-        # Add the attenuated and delayed signal to the original signal
-        echos += attenuation_signal
-
-    return echos
-
-def _signal_linear_drift(signal):
-
-    n_samples = len(signal)
-    linear_drift = np.arange(n_samples) * (1 / n_samples)
-
-    return linear_drift
-
-
-def _signal_distort_artifacts(
-    signal,
-    signal_sd=None,
-    sampling_rate=100,
-    artifacts_frequency=0,
-    artifacts_amplitude=0.1,
-    artifacts_number=5,
-    artifacts_shape="laplace",
-    silent=False,
-):
-
-    # Generate artifact burst with random onset and random duration.
-    artifacts = _signal_distort_noise(
-        len(signal),
-        sampling_rate=sampling_rate,
-        noise_frequency=artifacts_frequency,
-        noise_amplitude=artifacts_amplitude,
-        noise_shape=artifacts_shape,
-        silent=silent,
-    )
-    if artifacts.sum() == 0:
-        return artifacts
-
-    min_duration = int(np.rint(len(artifacts) * 0.001))
-    max_duration = int(np.rint(len(artifacts) * 0.01))
-    artifact_durations = np.random.randint(min_duration, max_duration, artifacts_number)
-
-    artifact_onsets = np.random.randint(0, len(artifacts) - max_duration, artifacts_number)
-    artifact_offsets = artifact_onsets + artifact_durations
-
-    artifact_idcs = np.array([False] * len(artifacts))
-    for i in range(artifacts_number):
-        artifact_idcs[artifact_onsets[i] : artifact_offsets[i]] = True
-
-    artifacts[~artifact_idcs] = 0
-
-    # Scale amplitude by the signal's standard deviation.
-    if signal_sd is not None:
-        artifacts_amplitude *= signal_sd
-    artifacts *= artifacts_amplitude
-
-    return artifacts
-
-
-def _signal_distort_powerline(
-    signal, signal_sd=None, sampling_rate=100, powerline_frequency=[5,10,100], powerline_amplitude=0, silent=False
-):
-
-    duration = len(signal) / sampling_rate
-    powerline_noise = signal_simulate(
-        duration=duration, sampling_rate=sampling_rate, frequency=powerline_frequency, amplitude=1, silent=silent
-    )
-
-    if signal_sd is not None:
-        powerline_amplitude *= signal_sd
-    powerline_noise *= powerline_amplitude
-
-    return powerline_noise
-
-
-def _signal_distort_noise_multifrequency(
-    signal,
-    signal_sd=None,
-    sampling_rate=100,
-    noise_amplitude=0.1,
-    noise_frequency=100,
-    noise_shape="laplace",
-    silent=False,
-):
-    base_noise = np.zeros(len(signal))
-    params = listify(noise_amplitude=noise_amplitude, noise_frequency=noise_frequency, noise_shape=noise_shape)
-
-    for i in range(len(params["noise_amplitude"])):
-
-        freq = params["noise_frequency"][i]
-        amp = params["noise_amplitude"][i]
-        shape = params["noise_shape"][i]
-
-        if signal_sd is not None:
-            amp *= signal_sd
-
-        # Make some noise!
-        _base_noise = _signal_distort_noise(
-            len(signal),
-            sampling_rate=sampling_rate,
-            noise_frequency=freq,
-            noise_amplitude=amp,
-            noise_shape=shape,
-            silent=silent,
-        )
-        base_noise += _base_noise
-
-    return base_noise
-
-
-def _signal_distort_noise(
-    n_samples, sampling_rate=1000, noise_frequency=100, noise_amplitude=0.1, noise_shape="laplace", silent=False
-):
-
-    _noise = np.zeros(n_samples)
-    # Apply a very conservative Nyquist criterion in order to ensure
-    # sufficiently sampled signals.
-    nyquist = sampling_rate * 0.1
-    if noise_frequency > nyquist:
-        if not silent:
-            warnings.warn(
-                f"Skipping requested noise frequency "
-                f" of {noise_frequency} Hz since it cannot be resolved at "
-                f" the sampling rate of {sampling_rate} Hz. Please increase "
-                f" sampling rate to {noise_frequency * 10} Hz or choose "
-                f" frequencies smaller than or equal to {nyquist} Hz.",
-                category=NeuroKitWarning
-            )
-        return _noise
-    # Also make sure that at least one period of the frequency can be
-    # captured over the duration of the signal.
-    duration = n_samples / sampling_rate
-    if (1 / noise_frequency) > duration:
-        if not silent:
-            warnings.warn(
-                f"Skipping requested noise frequency "
-                f" of {noise_frequency} Hz since its period of {1 / noise_frequency} "
-                f" seconds exceeds the signal duration of {duration} seconds. "
-                f" Please choose noise frequencies larger than "
-                f" {1 / duration} Hz or increase the duration of the "
-                f" signal above {1 / noise_frequency} seconds.",
-                category=NeuroKitWarning
-            )
-        return _noise
-
-    noise_duration = int(duration * noise_frequency)
-
-    if noise_shape in ["normal", "gaussian"]:
-        _noise = np.random.normal(0, noise_amplitude, noise_duration)
-    elif noise_shape == "laplace":
-        _noise = np.random.laplace(0, noise_amplitude, noise_duration)
-    else:
-        raise ValueError("NeuroKit error: signal_distort(): 'noise_shape' should be one of 'gaussian' or 'laplace'.")
-
-    if len(_noise) != n_samples:
-        _noise = signal_resample(_noise, desired_length=n_samples)
-    return _noise
-
-class NeuroKitWarning(RuntimeWarning):
-    """
-    Description:
-        Category for runtime warnings
-    """
-
-def listify(**kwargs):
-    """
-    Description:
-        Normalizes the input keyword arguments by converting them into lists of equal length. 
-        If an argument is a single value, it is replicated to match the length of the longest 
-        input list. If an argument is a list shorter than the longest list, its last element 
-        is repeated to achieve the required length.
-
-    Args:
-        **kwargs: Variable length keyword arguments. Each can be a single non-list value or a list. 
-        Non-list values are treated as single-element lists.
-
-    Returns:
-        A dictionary with the original keys and their corresponding values extended to lists of 
-        equal length.
-    """
-    args = kwargs
-    maxi = 1
-
-    # Find max length
-    for key, value in args.items():
-        if isinstance(value, str) is False:
-            try:
-                if len(value) > maxi:
-                    maxi = len(value)
-            except TypeError:
-                pass
-
-    # Transform to lists
-    for key, value in args.items():
-        if isinstance(value, list):
-            args[key] = _multiply_list(value, maxi)
-        else:
-            args[key] = _multiply_list([value], maxi)
-
-    return args
-
-def _multiply_list(lst, length):
-    q, r = divmod(length, len(lst))
-    return q * lst + lst[:r]
-
-### old version of scg generation
-def scg(duration=10, sampling_rate=100, heart_rate_min=50, heart_rate_max=150, s_min=90, s_max=140,
-        d_min=60, d_max=100, respiratory=True, respiratory_rate_min=10, respiratory_rate_max=30):
-    """
-    Description:
-        A function to generate a scg signal
-    Args:
-        duration: length of the signal (second)
-        sampling_rate: (Hz)
-        heart_rate_min: the min heart rate (beats/minute)
-        heart_rate_max: the max heart rate (beats/minute)
-        respiratory: whether to add the respiratory signal
-        respiratory_rate_min: the min respiratory rate (cycles/minute)
-        respiratory_rate_max: the max respiratory rate (cycles/minute)
-        s_min: the min systolic
-        s_max: the max systolic
-        d_min: the min diastolic
-        d_max: the max diastolic
-    Returns:
-        A scg signal
-    """
-    length = duration * sampling_rate
-    respiratory_rate = np.random.randint(respiratory_rate_min,respiratory_rate_max)
-    diastolic = np.random.randint(d_min,d_max)
-    systolic = np.random.randint(s_min,s_max)
-    heart_rate = np.random.randint(heart_rate_min,heart_rate_max)
-
-    # generate the basic waveform of scg
-    ind = np.random.randint(17,34)
-    cardiac_s = scipy.signal.daub(ind)
-    cardiac_d = scipy.signal.daub(ind) * 0.3 * diastolic / 80  # change height
-
-    # make sure the length is 100
-    cardiac_s = scipy.signal.resample(cardiac_s, 100)
-    cardiac_d = scipy.signal.resample(cardiac_d, 100)
-
-    # take the first 40 timestamps as cardiac_s
-    cardiac_s = cardiac_s[0:40]
-
-    # determine the length of gap depending on systolic (S)
-    distance = 180 - systolic
-    zero_signal = np.zeros(distance)
-
-    # concatenate the three parts as a period: cardiac_s + gap + cardiac_d
-    cardiac = np.concatenate([cardiac_s, zero_signal, cardiac_d])
-
-    cardiac_length = int(100 * sampling_rate / heart_rate)
-    cardiac = scipy.signal.resample(cardiac, cardiac_length)  # fix every cardiac length to 1000/heart_rate
-
-    # Caculate the number of beats in 10 seconds
-    num_heart_beats = int(duration * heart_rate / 60)  # if hr = 70, the num_heart_beats = 11
-
-    scg = np.tile(cardiac, num_heart_beats)
-    scg = signal_resample(
-        scg, sampling_rate=int(len(scg) / 10), desired_length=length, desired_sampling_rate=sampling_rate
-    )
-
-    if respiratory:
-        ### add rr
-        num_points = duration * sampling_rate
-        x_space = np.linspace(0, 1, num_points)
-        seg_fre = respiratory_rate / (60 / duration)
-        seg_amp = max(scg) * 0.00001
-        rr_component = seg_amp * np.sin(2 * np.pi * seg_fre * x_space)
-        scg *= (rr_component + 2 * seg_amp)
-
-    return scg
-
-def signal_resample(signal, desired_length=None, sampling_rate=None, desired_sampling_rate=None, method="interpolation"):
-    if desired_length is None:
-        desired_length = int(np.round(len(signal) * desired_sampling_rate / sampling_rate))
-    # Sanity checks
-    if len(signal) == desired_length:
-        return signal
-    # Resample
-    resampled = _resample_interpolation(signal, desired_length)
-    return resampled
-
-def _resample_interpolation(signal, desired_length):
-    resampled_signal = scipy.ndimage.zoom(signal, desired_length / len(signal))
-    return resampled_signal
-
-
 ## Template of SCG
 def get_template(signal, threshold=0.000005):
     """
