@@ -30,6 +30,7 @@ warnings.filterwarnings('ignore')
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from fastsst import SingularSpectrumTransformation
+plt.rcParams['figure.figsize'] = [8, 3] # figsize for signal
 
 
 # ==============================================================================
