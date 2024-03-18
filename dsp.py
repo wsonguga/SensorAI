@@ -1193,13 +1193,14 @@ def _scg_simulate_wavelet(**kwargs):
         cardiac_d = np.concatenate((cardiac_d,np.zeros(60)))
         
     elif args['pulse_type'] == "sym":
-        index = np.array([3, 5, 7, 9, 11, 12, 13, 14, 15, 16, 17, 19])
-        ind = np.random.choice(index)
+        ind = np.random.randint(12, 20)
         wavelet = pywt.Wavelet(f"sym{ind}")
-        phi, psi, x = wavelet.wavefun(level=1)
-        psi = np.concatenate((psi,np.zeros(100-len(psi))))
-        cardiac_s = psi
-        cardiac_d = psi * args['diastolic'] / 80 # change height to 0.3
+        dec_lo = wavelet.dec_lo[::-1]
+        dec_lo = np.append(dec_lo, np.zeros(20))
+        cardiac_s = dec_lo
+        cardiac_d = dec_lo * 0.3 * args['diastolic'] / 80 # change height to 0.3
+        cardiac_s = scipy.signal.resample(cardiac_s, 100)
+        cardiac_d = scipy.signal.resample(cardiac_d, 100)
     
     else:
         raise Exception("The pulse_type contains: db, mor, ricker, sym")
