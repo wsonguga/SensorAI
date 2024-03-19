@@ -30,6 +30,7 @@ warnings.filterwarnings('ignore')
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
     from fastsst import SingularSpectrumTransformation
+plt.rcParams['figure.figsize'] = [8, 3] # figsize for signal
 
 
 # ==============================================================================
@@ -913,7 +914,7 @@ def scg_simulate(**kwargs):
             Length of signal
         sampling_rate: default = 100
             Sampling rate of signal
-        heart_rate: default = (50,150)
+        : default = (50,150)
             The range of heart rate
         add_respiratory: default = True
             Whether to add respiratory
@@ -1192,13 +1193,14 @@ def _scg_simulate_wavelet(**kwargs):
         cardiac_d = np.concatenate((cardiac_d,np.zeros(60)))
         
     elif args['pulse_type'] == "sym":
-        index = np.array([3, 5, 7, 9, 11, 12, 13, 14, 15, 16, 17, 19])
-        ind = np.random.choice(index)
+        ind = np.random.randint(12, 20)
         wavelet = pywt.Wavelet(f"sym{ind}")
-        phi, psi, x = wavelet.wavefun(level=1)
-        psi = np.concatenate((psi,np.zeros(100-len(psi))))
-        cardiac_s = psi
-        cardiac_d = psi * args['diastolic'] / 80 # change height to 0.3
+        dec_lo = wavelet.dec_lo[::-1]
+        dec_lo = np.append(dec_lo, np.zeros(20))
+        cardiac_s = dec_lo
+        cardiac_d = dec_lo * 0.3 * args['diastolic'] / 80 # change height to 0.3
+        cardiac_s = scipy.signal.resample(cardiac_s, 100)
+        cardiac_d = scipy.signal.resample(cardiac_d, 100)
     
     else:
         raise Exception("The pulse_type contains: db, mor, ricker, sym")
@@ -1781,7 +1783,7 @@ def seasonal_decomposition(signal, period=100, model=0, show=False):
     components = seasonal_decompose(signal, model=stl_model, period=period)
 
     if show:
-        plt.subplots(4, 1)
+        plt.subplots(4, 1, figsize=(8,8))
 
         plt.subplot(4, 1, 1)
         plt.plot(signal, label='Original Signal', color='r')
@@ -1798,6 +1800,7 @@ def seasonal_decomposition(signal, period=100, model=0, show=False):
 
         plt.subplot(4, 1, 4)
         plt.plot(components.resid, label='Residual')
+        plt.tight_layout()
         plt.legend()
         plt.show()
 
@@ -2957,7 +2960,7 @@ def dicl2ls(filepath):
     return data
 
 def plot_noise_signal(original_signal, noisy_signal, title_name):
-    plt.figure()
+    plt.figure(figsize=(8, 3))
     plt.plot(noisy_signal, label='Noisy Signal')
     plt.plot(original_signal, label='Original Signal')
     plt.ylabel('Amplitude')
@@ -2969,7 +2972,7 @@ def plot_noise_signal(original_signal, noisy_signal, title_name):
 def plot_decomposed_components(signal, components, title_name):
     n_components = len(components)
 
-    plt.subplots(n_components+1, 1)
+    plt.subplots(n_components+1, 1, figsize=(8, 2*(n_components+1)))
     plt.subplot(n_components+1, 1, 1)
     plt.title(title_name)
 
@@ -2982,10 +2985,11 @@ def plot_decomposed_components(signal, components, title_name):
         plt.legend()
     plt.ylabel('Amplitude')
     plt.xlabel('Time')
+    plt.tight_layout()
     plt.show()
 
 def plot_filtered_signal(filtered_signal, signal, title_name):
-    plt.figure()
+    plt.figure(figsize=(8, 3))
     plt.plot(signal, label='Original Signal', alpha=0.6)
     plt.plot(filtered_signal, label='Filtered Signal')
     plt.ylabel('Amplitude')
@@ -2995,7 +2999,7 @@ def plot_filtered_signal(filtered_signal, signal, title_name):
     plt.show()
 
 def plot_sim_waves(signal, wave_name):
-    plt.figure()
+    plt.figure(figsize=(8, 3))
     plt.plot(signal, label=wave_name)
     plt.ylabel('Amplitude')
     plt.xlabel('Time')
@@ -3004,7 +3008,7 @@ def plot_sim_waves(signal, wave_name):
     plt.show()
 
 def plot_adp_filtered_signal(y, d_signal, error):
-    plt.figure()
+    plt.subplots(2, 1, figsize=(8, 6))
 
     plt.subplot(211)
     plt.title("Adaptation")
@@ -3025,7 +3029,7 @@ def plot_adp_filtered_signal(y, d_signal, error):
     plt.show()
 
 def plot_averaging_center(center, pieces):
-    plt.figure()
+    plt.figure(figsize=(8, 3))
     plt.title("Center of Signal Pieces")
     for piece in pieces:
         plt.plot(piece, alpha=0.35)
