@@ -1675,8 +1675,8 @@ def pipeBuild_HDBSCAN(min_cluster_size=[5], min_samples=[None], cluster_selectio
 
 # CLUSTERING GIRD BUILDER
 def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'):
-  # iterate over cluterers
-  for j in range(len(names)):
+    # iterate over cluterers
+    for j in range(len(names)):
 
         grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
         grid_search.fit(X, y)
@@ -1694,8 +1694,8 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
 
         x_classes = int(np.amax(labels)+1)
         y_classes = int(np.amax(y)+1)
-        print("# of X's classes is: ",x_classes)
-        print("# of y's classes is: ",y_classes)
+        print("# of X's clusters is: ",x_classes)
+        print("# of y's clusters is: ",y_classes)
         if x_classes > y_classes:
             n_classes = x_classes
         else:
@@ -1705,14 +1705,14 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
         j = 0
         titles = []
         while j < n_classes:
-            name = "Class " + str(j)
+            name = "Cluster " + str(j)
             titles.append(name)
             j = j+1
         fig = make_subplots(
             rows=plot_number, cols=n_classes,
             subplot_titles=titles)
 
-      
+        """
         count = 0
         current_label = 0
         plot_num = 0
@@ -1732,6 +1732,40 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
         else:
             print("Incorrect plot number value entered")
         fig.show()
+        #"""
+        count = 0
+        current_label = 0
+        plot_num = 0
+        if isinstance(plot_number,int) and plot_number > 0 and plot_number <= 10:
+            while current_label < n_classes:
+                while count < len(y_test):
+                    if y_test[count] == current_label and plot_num < plot_number:
+                        if y_pred[count] == y_test[count]:
+                            color = 'black'
+                        else:
+                            color = 'red'
+                        fig.add_trace(
+                            go.Scatter(
+                                mode='lines+markers',
+                                x=x_axis,
+                                y=X_test[count],
+                                marker=dict(
+                                  color=color,
+                                  size = 2,
+                                  )),
+                            row=plot_num+1, col=current_label+1                            
+                        )                       
+                        plot_num = plot_num +1
+                    count = count + 1
+                current_label = current_label +1
+                plot_num = 0
+                count = 0
+        else:
+            print("Incorrect plot number value entered")
+        fig.update_layout(showlegend=False)
+        fig.show()
+    return
+
 
 if __name__ == '__main__':
   p = Path('.')
