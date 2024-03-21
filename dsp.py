@@ -1202,8 +1202,21 @@ def _scg_simulate_wavelet(**kwargs):
         cardiac_s = scipy.signal.resample(cardiac_s, 100)
         cardiac_d = scipy.signal.resample(cardiac_d, 100)
     
+    elif args['pulse_type'] == "coif":
+        ind = np.random.randint(5, 17)
+        wavelet = pywt.Wavelet(f"coif{ind}")
+        dec_lo = wavelet.dec_lo[::-1]
+        length = int(0.1 * len(dec_lo))
+        dec_lo = dec_lo[length:]
+        if len(dec_lo) < 100:
+            dec_lo = np.append(dec_lo,np.zeros(100-len(dec_lo)))
+        else:
+            dec_lo = scipy.signal.resample(dec_lo, 100)
+        cardiac_s = dec_lo
+        cardiac_d = dec_lo * 0.3 * args['diastolic'] / 80 # change height to 0.3
+    
     else:
-        raise Exception("The pulse_type contains: db, mor, ricker, sym")
+        raise Exception("The pulse_type contains: db, mor, ricker, sym, coif")
 
     cardiac_s = cardiac_s[0:40]
     distance = 180 - args['systolic'] 
