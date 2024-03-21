@@ -1738,9 +1738,9 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
         plot_num = 0
         if isinstance(plot_number,int) and plot_number > 0 and plot_number <= 10:
             while current_label < n_classes:
-                while count < len(y_test):
-                    if y_test[count] == current_label and plot_num < plot_number:
-                        if y_pred[count] == y_test[count]:
+                while count < len(y):
+                    if y[count] == current_label and plot_num < plot_number:
+                        if labels[count] == y[count]:
                             color = 'black'
                         else:
                             color = 'red'
@@ -1748,7 +1748,7 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
                             go.Scatter(
                                 mode='lines+markers',
                                 x=x_axis,
-                                y=X_test[count],
+                                y=X[count],
                                 marker=dict(
                                   color=color,
                                   size = 2,
