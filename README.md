@@ -1,6 +1,14 @@
 # SensorAI
 Sensor data science and AI tutorial
 
+# Outline
+
+1. Advanced signal processing: tutorial_dsp.ipynb
+2. Classification: tutorial_classification.ipynb
+3. Regression: tutorial_regression.ipynb
+4. Clustering: tutorial_clustering.ipynb
+5. Deep Learning: https://github.com/timeseriesAI/tsai or https://github.com/thuml/Time-Series-Library
+
 ## Citation 
 
 Bib: 
