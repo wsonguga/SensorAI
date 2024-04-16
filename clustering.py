@@ -17,6 +17,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.pipeline import Pipeline
 from sklearn.datasets import make_moons, make_circles, make_classification
+from sklearn.metrics.cluster import contingency_matrix
 from sklearn.cluster import AffinityPropagation, AgglomerativeClustering, BisectingKMeans, DBSCAN, FeatureAgglomeration, KMeans, MeanShift, MiniBatchKMeans, OPTICS, SpectralClustering
 #from sklearn.cluster import HDBSCAN
 from sklearn.model_selection import GridSearchCV
@@ -1699,7 +1700,7 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
         if x_classes > y_classes:
             n_classes = x_classes
         else:
-            n_classes = y_classes  
+            n_classes = y_classes
         x_axis = np.arange(len(X[0]))
 
         j = 0
