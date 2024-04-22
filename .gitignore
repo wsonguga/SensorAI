@@ -3,3 +3,4 @@
 .ipynb_checkpoints
 __pycache__
 junk.py
+data/synthetic_scg.zip

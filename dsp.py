@@ -4162,7 +4162,7 @@ def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
 
   return x, y
 
-def generate_anomaly_data(amplitude=None,frequency=None,wave_number=10,show=True):
+def generate_anomaly_data(amplitude=None,frequency=None,noise=False,wave_number=10,show=True):
   X = []
   count = 0
   # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
@@ -4180,9 +4180,13 @@ def generate_anomaly_data(amplitude=None,frequency=None,wave_number=10,show=True
         freq0 = random.randint(1, 3)
         freq1 = random.randint(1, 3)
     wave0 = sine_wave(amplitude=amp0, frequency=freq0)
+    if noise == True:
+        wave0=add_white_noise(wave0)
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
     wave1 = square_wave(amplitude=amp1, frequency=freq1)
+    if noise == True:
+        wave1=add_white_noise(wave1)
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
     count = count + 1
@@ -4203,7 +4207,7 @@ def generate_anomaly_data(amplitude=None,frequency=None,wave_number=10,show=True
   return x, y
 
 
-def generate_regression_data(amplitude=None,wave_number=10,show=True):
+def generate_regression_data(amplitude=None,frequency=None,wave_number=10,show=True):
   X = []
   count = 0
   # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
@@ -4216,9 +4220,15 @@ def generate_regression_data(amplitude=None,wave_number=10,show=True):
         amp0 = random.randint(1, 3)
         amp1 = random.randint(1, 3)
         amp2 = random.randint(1, 3)
-    freq0 = random.uniform(1.0, 3.0)
-    freq1 = random.uniform(1.0, 3.0)
-    freq2 = random.uniform(1.0, 3.0)
+    if frequency != None and isinstance(amplitude,int):
+        freq0 = amplitude
+        freq1 = amplitude
+        freq2 = amplitude
+    else:
+        freq0 = random.uniform(1.0, 3.0)
+        freq1 = random.uniform(1.0, 3.0)
+        freq2 = random.uniform(1.0, 3.0)
+    
     wave0 = sine_wave(amplitude=amp0, frequency=freq0)
     wave0 = np.append(wave0, freq0, axis=None)
     X.append(wave0)
