@@ -4249,7 +4249,7 @@ def generate_regression_data(amplitude=None,frequency=None,noise=False,wave_numb
     if label_type == 'frequency':
         wave1 = np.append(wave1, freq1, axis=None)
     elif label_type == 'amplitude':
-        wave0 = np.append(wave1, amp1, axis=None)
+        wave1 = np.append(wave1, amp1, axis=None)
     X.append(wave1)
     wave2 = square_wave(amplitude=amp2, frequency=freq2)
     if noise == True:
