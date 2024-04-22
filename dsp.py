@@ -4257,7 +4257,7 @@ def generate_regression_data(amplitude=None,frequency=None,noise=False,wave_numb
     if label_type == 'frequency':
         wave2 = np.append(wave2, freq2, axis=None)
     elif label_type == 'amplitude':
-        wave0 = np.append(wave2, amp2, axis=None) 
+        wave2 = np.append(wave2, amp2, axis=None) 
     X.append(wave2)
     count = count + 1
 
