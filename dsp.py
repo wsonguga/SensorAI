@@ -4223,9 +4223,9 @@ def generate_regression_data(amplitude=None,frequency=None,noise=False,wave_numb
         amp1 = amplitude
         amp2 = amplitude
     else:
-        amp0 = random.randint(1, 3)
-        amp1 = random.randint(1, 3)
-        amp2 = random.randint(1, 3)
+        amp0 = random.uniform(1.0, 3.0)
+        amp1 = random.uniform(1.0, 3.0)
+        amp2 = random.uniform(1.0, 3.0)
     if frequency != None and isinstance(amplitude,int):
         freq0 = amplitude
         freq1 = amplitude
