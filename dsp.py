@@ -4114,7 +4114,7 @@ def cal_autocorr(signal, plot=False):
         plt.show()
     return lags, corrs
 
-def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
+def generate_class_data(amplitude=None,frequency=None,noise=False,wave_number=10,show=True):
   X = []
   count = 0
   # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
@@ -4136,12 +4136,18 @@ def generate_class_data(amplitude=None,frequency=None,wave_number=10,show=True):
         freq1 = random.randint(1, 3)
         freq2 = random.randint(1, 3)
     wave0 = sine_wave(amplitude=amp0, frequency=freq0)
+    if noise == True:
+        wave0=add_white_noise(wave0)
     wave0 = np.append(wave0, 0, axis=None)
     X.append(wave0)
     wave1 = triangle_wave(amplitude=amp1, frequency=freq1)
+    if noise == True:
+        wave1=add_white_noise(wave1)
     wave1 = np.append(wave1, 1, axis=None)
     X.append(wave1)
     wave2 = square_wave(amplitude=amp2, frequency=freq2)
+    if noise == True:
+        wave2=add_white_noise(wave2)
     wave2 = np.append(wave2, 2, axis=None)  
     X.append(wave2)
     count = count + 1
@@ -4207,7 +4213,7 @@ def generate_anomaly_data(amplitude=None,frequency=None,noise=False,wave_number=
   return x, y
 
 
-def generate_regression_data(amplitude=None,frequency=None,wave_number=10,show=True):
+def generate_regression_data(amplitude=None,frequency=None,noise=False,wave_number=10,show=True,label_type='frequency'):
   X = []
   count = 0
   # randomize amplitudes and frequencies unless amplitude and/or frequency is set to specific value
@@ -4230,13 +4236,28 @@ def generate_regression_data(amplitude=None,frequency=None,wave_number=10,show=T
         freq2 = random.uniform(1.0, 3.0)
     
     wave0 = sine_wave(amplitude=amp0, frequency=freq0)
-    wave0 = np.append(wave0, freq0, axis=None)
+    if noise == True:
+        wave0=add_white_noise(wave0)
+    if label_type == 'frequency':
+        wave0 = np.append(wave0, freq0, axis=None)
+    elif label_type == 'amplitude':
+        wave0 = np.append(wave0, amp0, axis=None)
     X.append(wave0)
     wave1 = triangle_wave(amplitude=amp1, frequency=freq1)
-    wave1 = np.append(wave1, freq1, axis=None)
+    if noise == True:
+        wave1=add_white_noise(wave1)
+    if label_type == 'frequency':
+        wave1 = np.append(wave1, freq1, axis=None)
+    elif label_type == 'amplitude':
+        wave0 = np.append(wave1, amp1, axis=None)
     X.append(wave1)
     wave2 = square_wave(amplitude=amp2, frequency=freq2)
-    wave2 = np.append(wave2, freq2, axis=None)  
+    if noise == True:
+        wave2=add_white_noise(wave2)
+    if label_type == 'frequency':
+        wave2 = np.append(wave2, freq2, axis=None)
+    elif label_type == 'amplitude':
+        wave0 = np.append(wave2, amp2, axis=None) 
     X.append(wave2)
     count = count + 1
 
