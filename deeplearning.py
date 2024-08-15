@@ -71,7 +71,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
     
     #pipeline = Pipeline(steps=[('data convert',Slicer()),('tcn', classifier)])
     pipeline = Pipeline(steps=[('tensor data',ToTensor()),('tcn', classifier)])
-    pipeline = Pipeline(steps=[('tcn', classifier)])
+    #pipeline = Pipeline(steps=[('tcn', classifier)])
 
     params = [{
         'tcn__num_inputs': num_inputs,
