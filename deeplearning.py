@@ -34,8 +34,8 @@ def pipeBuild_TCN(num_inputs=[8],num_channels=[[4]],kernel_size=[4],dilations=[N
                   activation=['relu'],kernel_initializer=['xavier_uniform'],use_skip_connections=[False],
                   input_shape=['NCL'],embedding_shapes=[None],embedding_mode=['add'],use_gate=[False],
                   lookahead=[1],output_projection=[None],output_activation=[None]): 
-    classifier = TCN(num_inputs,num_channels)
-    pipeline = Pipeline(steps=[('kmeans', classifier)])
+    classifier = TCN()
+    pipeline = Pipeline(steps=[('tcn', classifier)])
     params = [{
         'tcn__num_inputs': num_inputs,
         'tcn__num_channels': num_channels,
