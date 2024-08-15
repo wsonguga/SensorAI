@@ -44,8 +44,9 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
         max_epochs=epochs,
         lr=lr,
         device=device,
+        train_split=False,
+        verbose=0,
     )
-    classifier.set_params(train_split=False,verbose=0)
     
     pipeline = Pipeline(steps=[('tcn', classifier)])
 
