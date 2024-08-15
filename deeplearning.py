@@ -40,7 +40,7 @@ class Slicer(BaseEstimator,TransformerMixin):
       return
    
    def transform(self,X,y=None):
-      X["sliced data"] = SliceDataset(X)
+      X["sliced data"] = SliceDict(X)
       return X
    
 
