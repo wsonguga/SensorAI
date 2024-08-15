@@ -97,7 +97,9 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='acc
 
         grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring, refit=False,
                                    cv=5, verbose=1, n_jobs=-1)
+        print("X_train type: ",type(X_train))
         X_train = SliceDataset(X_train)
+        print("Sliced type: ",type(X_train))
         grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
