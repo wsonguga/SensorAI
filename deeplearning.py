@@ -35,14 +35,14 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
                   dilation_reset=[None],dropout=[0.1],causal=[True],use_norm=['weight_norm'],
                   activation=['relu'],kernel_initializer=['xavier_uniform'],use_skip_connections=[False],
                   input_shape=['NCL'],embedding_shapes=[None],embedding_mode=['add'],use_gate=[False],
-                  lookahead=[1],output_projection=[None],output_activation=[None]): 
+                  lookahead=[1],output_projection=[None],output_activation=[None],epochs=20,lr=0.1): 
     
     tcn = TCN(num_inputs,num_channels)
     
     classifier = NeuralNetClassifier(
         tcn,
-        max_epochs=20,
-        lr=0.1,
+        max_epochs=epochs,
+        lr=lr,
         device=device,
     )
     classifier.set_params(train_split=False,verbose=0)
@@ -78,8 +78,8 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
     # iterate over classifiers
     for j in range(len(names)):
 
-        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,refit=False,cv=5,
-                                   verbose=1, n_jobs=-1)
+        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring, refit=False,
+                                   cv=5, verbose=1, n_jobs=-1)
         #grid_search.set_params(train_split=False,verbose=0)
         grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
