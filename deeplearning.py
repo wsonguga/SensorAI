@@ -43,7 +43,13 @@ class Slicer(BaseEstimator,TransformerMixin):
       X["sliced data"] = SliceDict(X)
       return X
    
-
+class ToTensor(BaseEstimator,TransformerMixin):
+   def fit(self,X,y=None):
+      return
+   
+   def transform(self,X,y=None):
+      X = torch.from_numpy(X)
+      return X
 
 # TCN
 def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
@@ -64,6 +70,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
     )
     
     #pipeline = Pipeline(steps=[('data convert',Slicer()),('tcn', classifier)])
+    pipeline = Pipeline(steps=[('tensor data',ToTensor()),('tcn', classifier)])
     pipeline = Pipeline(steps=[('tcn', classifier)])
 
     params = [{
@@ -97,10 +104,10 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='acc
 
         grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring, refit=False,
                                    cv=5, verbose=1, n_jobs=-1)
-        print("X_train type: ",type(X_train))
+        #print("X_train type: ",type(X_train))
         #X_train = SliceDataset(X_train)
         #print("Sliced type: ",type(X_train))
-        grid_search.fit(SliceDict(X_train), y_train)
+        grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
         print(grid_search.best_params_)
