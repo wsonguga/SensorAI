@@ -70,8 +70,8 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
     )
     
     #pipeline = Pipeline(steps=[('data convert',Slicer()),('tcn', classifier)])
-    pipeline = Pipeline(steps=[('tensor data',ToTensor()),('tcn', classifier)])
-    #pipeline = Pipeline(steps=[('tcn', classifier)])
+    #pipeline = Pipeline(steps=[('tensor data',ToTensor()),('tcn', classifier)])
+    pipeline = Pipeline(steps=[('tcn', classifier)])
 
     params = [{
         'tcn__num_inputs': num_inputs,
@@ -107,6 +107,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='acc
         #print("X_train type: ",type(X_train))
         #X_train = SliceDataset(X_train)
         #print("Sliced type: ",type(X_train))
+        X_train = torch.from_numpy(X_train)
         grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
