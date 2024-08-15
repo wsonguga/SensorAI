@@ -20,6 +20,7 @@ from sklearn.datasets import make_moons, make_circles, make_classification
 from sklearn.metrics.cluster import contingency_matrix
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import ConfusionMatrixDisplay, classification_report, RocCurveDisplay, auc, roc_curve, roc_auc_score
+from sklearn.base import BaseEstimator, TransformerMixin
 import torch
 from pytorch_tcn import TCN
 from skorch import NeuralNetClassifier
@@ -33,9 +34,16 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 algo_list = ['lstm','tcn','transformer']
 
 
-def ArrayToTensor(data):
-   new_tensor = SliceDataset(data)
-   return new_tensor
+# Custome SKLEARN Transformer to convert data to PyTorch format
+class Slicer(BaseEstimator,TransformerMixin):
+   def fit(self,X,y=None):
+      return
+   
+   def transform(self,X,y=None)
+      X = SliceDataset(X)
+      return X
+   
+
 
 # TCN
 def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
@@ -55,7 +63,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
         verbose=0,
     )
     
-    pipeline = Pipeline(steps=[('data convert',SliceDataset()),('tcn', classifier)])
+    pipeline = Pipeline(steps=[('data convert',Slicer()),('tcn', classifier)])
 
     params = [{
         'tcn__num_inputs': num_inputs,
