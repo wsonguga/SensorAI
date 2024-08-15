@@ -55,7 +55,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
         verbose=0,
     )
     
-    pipeline = Pipeline(steps=[('data convert',SliceDataset()),('tcn', classifier)])
+    pipeline = Pipeline(steps=[('data convert',SliceDataset(any)),('tcn', classifier)])
 
     params = [{
         'tcn__num_inputs': num_inputs,
