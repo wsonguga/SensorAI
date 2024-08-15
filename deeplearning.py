@@ -26,6 +26,8 @@ from skorch import NeuralNetClassifier
 
 #import load_data as ld
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+
 algo_list = ['lstm','tcn','transformer']
 
 # TCN
