@@ -23,6 +23,7 @@ from sklearn.metrics import ConfusionMatrixDisplay, classification_report, RocCu
 import torch
 from pytorch_tcn import TCN
 from skorch import NeuralNetClassifier
+from pytorch_weight_norm import WeightNorm
 
 #import load_data as ld
 
