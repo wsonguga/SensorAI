@@ -100,7 +100,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='acc
         print("X_train type: ",type(X_train))
         #X_train = SliceDataset(X_train)
         #print("Sliced type: ",type(X_train))
-        grid_search.fit(SliceDataset(X_train), y_train)
+        grid_search.fit(SliceDict(X_train), y_train)
         score = grid_search.score(X_test, y_test)
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
         print(grid_search.best_params_)
