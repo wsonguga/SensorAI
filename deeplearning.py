@@ -39,7 +39,7 @@ class Slicer(BaseEstimator,TransformerMixin):
    def fit(self,X,y=None):
       return
    
-   def transform(self,X,y=None)
+   def transform(self,X,y=None):
       X = SliceDataset(X)
       return X
    
