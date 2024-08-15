@@ -76,8 +76,8 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
     # iterate over classifiers
     for j in range(len(names)):
 
-        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
-        grid_search.set_params(train_split=False,verbose=0)
+        grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,refit=False,cv=5, verbose=0, n_jobs=-1)
+        #grid_search.set_params(train_split=False,verbose=0)
         grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
