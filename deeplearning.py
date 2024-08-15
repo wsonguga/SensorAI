@@ -23,6 +23,7 @@ from sklearn.metrics import ConfusionMatrixDisplay, classification_report, RocCu
 import torch
 from pytorch_tcn import TCN
 from skorch import NeuralNetClassifier
+from skorch.helper import SliceDict, SliceDataset
 from pytorch_weight_norm import WeightNorm
 
 #import load_data as ld
@@ -30,6 +31,11 @@ from pytorch_weight_norm import WeightNorm
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 algo_list = ['lstm','tcn','transformer']
+
+
+def ArrayToTensor(data):
+   new_tensor = SliceDataset(data)
+   return new_tensor
 
 # TCN
 def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
@@ -49,7 +55,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
         verbose=0,
     )
     
-    pipeline = Pipeline(steps=[('tcn', classifier)])
+    pipeline = Pipeline(steps=[('data convert',SliceDataset()),('tcn', classifier)])
 
     params = [{
         'tcn__num_inputs': num_inputs,
