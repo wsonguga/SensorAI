@@ -63,7 +63,8 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
                   input_shape=['NCL'],embedding_shapes=[None],embedding_mode=['add'],use_gate=[False],
                   lookahead=[1],output_projection=[None],output_activation=[None],epochs=20,lr=0.1): 
     
-    tcn = TCN(num_inputs,num_channels)
+    #tcn = TCN(num_inputs,num_channels)
+    tcn = TCN()
     
     classifier = NeuralNetClassifier(
         tcn,
