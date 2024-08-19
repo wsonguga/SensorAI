@@ -165,7 +165,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='acc
         print("algo name is ",names[j])
         if names[j] == 'tcn':
             #X_train = SliceDataset(X_train)
-            X_train = torch.from_numpy(X_train)
+            X_train = torch.from_numpy(X_train).copy()
         grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
