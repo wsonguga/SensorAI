@@ -32,7 +32,7 @@ from scikeras.wrappers import KerasClassifier
 from scikeras.wrappers import KerasClassifier, KerasRegressor
 import keras
 from keras import Sequential
-
+import pickle
 
 #import load_data as ld
 
@@ -67,7 +67,8 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
     
     tcn = TCN(num_inputs,num_channels)
     #tcn = TCN()
-    
+
+    cb = ProgressBar()
     classifier = NeuralNetClassifier(
         tcn,
         max_epochs=epochs,
@@ -75,8 +76,13 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
         device=device,
         train_split=False,
         verbose=0,
+        callbacks=[cb],
     )
     
+    _ = pickle.dumps(tcn)  # raises Exception
+    del cb.pbar
+    _ = pickle.dumps(tcn)  # works
+
     #pipeline = Pipeline(steps=[('data convert',Slicer()),('tcn', classifier)])
     #pipeline = Pipeline(steps=[('tensor data',ToTensor()),('tcn', classifier)])
     pipeline = Pipeline(steps=[('tcn', classifier)])
@@ -168,10 +174,6 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='acc
         if names[j] == 'tcn':
             #X_tensor = SliceDataset(X_train)
             X_tensor = torch.from_numpy(X_train).detach()
-            grid_search.fit(X_tensor, y_train)
-            _ = pickle.dumps(net)  # raises Exception
-            del cb.pbar
-            _ = pickle.dumps(net)  # works
         else:
             grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
