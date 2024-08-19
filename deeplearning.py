@@ -102,7 +102,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
 
 
 # SEQUENTIAL
-def pipeBuild_TCN(optimizer=["adam"],learning_rate=[0.1],hidden_layer_dim=[(100,)],dropout=[0.5],epochs=20): 
+def pipeBuild_Sequential(optimizer=["adam"],learning_rate=[0.1],hidden_layer_dim=[(100,)],dropout=[0.5],epochs=20): 
     
     def get_model(hidden_layer_dim, meta):
         # note that meta is a special argument that will be
