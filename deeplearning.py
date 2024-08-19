@@ -23,8 +23,10 @@ from sklearn.metrics import ConfusionMatrixDisplay, classification_report, RocCu
 from sklearn.base import BaseEstimator, TransformerMixin
 import torch
 from pytorch_tcn import TCN
+#from torch.utils.data import DataLoader
 from skorch import NeuralNetClassifier
 from skorch.helper import SliceDict, SliceDataset
+from skorch.callbacks import ProgressBar
 from pytorch_weight_norm import WeightNorm
 from scikeras.wrappers import KerasClassifier
 from scikeras.wrappers import KerasClassifier, KerasRegressor
@@ -167,6 +169,9 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='acc
             #X_tensor = SliceDataset(X_train)
             X_tensor = torch.from_numpy(X_train).detach()
             grid_search.fit(X_tensor, y_train)
+            _ = pickle.dumps(net)  # raises Exception
+            del cb.pbar
+            _ = pickle.dumps(net)  # works
         else:
             grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
