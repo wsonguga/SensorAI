@@ -102,7 +102,10 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
 
 
 # SEQUENTIAL
-def pipeBuild_Sequential(optimizer=["adam"],learning_rate=[0.1],hidden_layer_dim=[(100,)],dropout=[0.5],epochs=20): 
+def pipeBuild_Sequential(build_fn=[None],warm_start=[False],random_state=[None],optimizer=['rmsprop'],
+                         loss=[None],metrics=[None],batch_size=[None],validation_batch_size=[None],
+                         verbose=[1],callbacks=[None],validation_split=[0.0],shuffle=[True],
+                         run_eagerly=[False],epochs=[1],class_weight=[None]): 
     
     def get_model(hidden_layer_dim, meta):
         # note that meta is a special argument that will be
@@ -125,7 +128,6 @@ def pipeBuild_Sequential(optimizer=["adam"],learning_rate=[0.1],hidden_layer_dim
         loss="sparse_categorical_crossentropy",
         optimizer="adam",
         hidden_layer_dim=100,
-        epochs=epochs
     )
     
     #pipeline = Pipeline(steps=[('data convert',Slicer()),('tcn', classifier)])
@@ -133,10 +135,21 @@ def pipeBuild_Sequential(optimizer=["adam"],learning_rate=[0.1],hidden_layer_dim
     pipeline = Pipeline(steps=[('seq', classifier)])
 
     params = [{
-        'optimizer__optimizer': optimizer,
-        'optimizer__learning_rate': learning_rate,
-        'model__hidden_layer_dim': hidden_layer_dim,
-        'model__dropout': dropout,
+        'seq__build_fn': build_fn,
+        'seq__warm_start': warm_start,
+        'seq__random_state': random_state,
+        'seq__optimizer': optimizer,
+        'seq__loss': loss,
+        'seq__metrics': metrics,
+        'seq__batch_size': batch_size,
+        'seq__validation_batch_size': validation_batch_size,
+        'seq__verbose': verbose,
+        'seq__callbacks': callbacks,
+        'seq__shuffle': shuffle,
+        'seq__run_eagerly': run_eagerly,
+        'seq__validation_split': validation_split,
+        'seq__epochs': epochs,
+        'seq__class_weight': class_weight,
     }]
     return pipeline, params
 
