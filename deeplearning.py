@@ -26,12 +26,17 @@ from pytorch_tcn import TCN
 from skorch import NeuralNetClassifier
 from skorch.helper import SliceDict, SliceDataset
 from pytorch_weight_norm import WeightNorm
+from scikeras.wrappers import KerasClassifier
+from scikeras.wrappers import KerasClassifier, KerasRegressor
+import keras
+from keras import Sequential
+
 
 #import load_data as ld
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-algo_list = ['lstm','tcn','transformer']
+algo_list = ['lstm','tcn','transformer','sequential']
 
 
 # Custome SKLEARN Transformer to convert data to PyTorch format
@@ -95,6 +100,45 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
     }]
     return pipeline, params
 
+
+# SEQUENTIAL
+def pipeBuild_TCN(optimizer=["adam"],learning_rate=[0.1],hidden_layer_dim=[(100,)],dropout=[0.5],epochs=20): 
+    
+    def get_model(hidden_layer_dim, meta):
+        # note that meta is a special argument that will be
+        # handed a dict containing input metadata
+        n_features_in_ = meta["n_features_in_"]
+        X_shape_ = meta["X_shape_"]
+        n_classes_ = meta["n_classes_"]
+
+        model = keras.models.Sequential()
+        model.add(keras.layers.Dense(n_features_in_, input_shape=X_shape_[1:]))
+        model.add(keras.layers.Activation("relu"))
+        model.add(keras.layers.Dense(hidden_layer_dim))
+        model.add(keras.layers.Activation("relu"))
+        model.add(keras.layers.Dense(n_classes_))
+        model.add(keras.layers.Activation("softmax"))
+        return model
+    
+    classifier = KerasClassifier(
+        model=get_model,
+        loss="sparse_categorical_crossentropy",
+        optimizer="adam",
+        hidden_layer_dim=100,
+        epochs=epochs
+    )
+    
+    #pipeline = Pipeline(steps=[('data convert',Slicer()),('tcn', classifier)])
+    #pipeline = Pipeline(steps=[('tensor data',ToTensor()),('tcn', classifier)])
+    pipeline = Pipeline(steps=[('seq', classifier)])
+
+    params = [{
+        'optimizer__optimizer': optimizer,
+        'optimizer__learning_rate': learning_rate,
+        'model__hidden_layer_dim': hidden_layer_dim,
+        'model__dropout': dropout,
+    }]
+    return pipeline, params
 
 
 # DEEPLEARNING CLASSIFICATON GIRD BUILDER
