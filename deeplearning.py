@@ -102,6 +102,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
 
 
 # SEQUENTIAL
+# This is a simple model and was included to test SciKeras with SKLearn
 def pipeBuild_Sequential(build_fn=[None],warm_start=[False],random_state=[None],optimizer=['rmsprop'],
                          loss=['sparse_categorical_crossentropy'],metrics=[None],batch_size=[None],validation_batch_size=[None],
                          verbose=[1],callbacks=[None],validation_split=[0.0],shuffle=[True],
