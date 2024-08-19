@@ -45,7 +45,7 @@ class Slicer(BaseEstimator,TransformerMixin):
       return
    
    def transform(self,X,y=None):
-      X["sliced data"] = SliceDict(X)
+      X["sliced data"] = SliceDataset(X)
       return X
    
 class ToTensor(BaseEstimator,TransformerMixin):
@@ -160,11 +160,8 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='acc
     for j in range(len(names)):
 
         grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring, refit=True,
-                                   cv=5, verbose=1, n_jobs=-1)
-        #print("X_train type: ",type(X_train))
-        #X_train = SliceDataset(X_train)
-        #print("Sliced type: ",type(X_train))
-        X_train = torch.from_numpy(X_train)
+                                   cv=5, verbose=1, n_jobs=-1)           
+        #X_train = torch.from_numpy(X_train)
         grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
