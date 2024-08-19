@@ -103,7 +103,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
 
 # SEQUENTIAL
 def pipeBuild_Sequential(build_fn=[None],warm_start=[False],random_state=[None],optimizer=['rmsprop'],
-                         loss=[None],metrics=[None],batch_size=[None],validation_batch_size=[None],
+                         loss=['sparse_categorical_crossentropy'],metrics=[None],batch_size=[None],validation_batch_size=[None],
                          verbose=[1],callbacks=[None],validation_split=[0.0],shuffle=[True],
                          run_eagerly=[False],epochs=[1],class_weight=[None]): 
     
@@ -125,13 +125,11 @@ def pipeBuild_Sequential(build_fn=[None],warm_start=[False],random_state=[None],
     
     classifier = KerasClassifier(
         model=get_model,
-        loss="sparse_categorical_crossentropy",
-        optimizer="adam",
+        loss=loss,
+        optimizer=optimizer,
         hidden_layer_dim=100,
     )
     
-    #pipeline = Pipeline(steps=[('data convert',Slicer()),('tcn', classifier)])
-    #pipeline = Pipeline(steps=[('tensor data',ToTensor()),('tcn', classifier)])
     pipeline = Pipeline(steps=[('seq', classifier)])
 
     params = [{
