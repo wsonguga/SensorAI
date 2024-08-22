@@ -174,8 +174,8 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='acc
         if names[j] == 'tcn':
             #X_tensor = SliceDataset(X_train)
             #X_tensor = torch.from_numpy(X_train).detach()
-            X_tensor = X_train.tobytes()
-            grid_search.fit(X_tensor, y_train)
+            #X_tensor = X_train.tobytes()
+            grid_search.fit(X_train, y_train)
         else:
             grid_search.fit(X_train, y_train)
         score = grid_search.score(X_test, y_test)
