@@ -68,7 +68,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
     tcn = TCN(num_inputs,num_channels)
     #tcn = TCN()
 
-    cb = ProgressBar()
+    #cb = ProgressBar()
     classifier = NeuralNetClassifier(
         tcn,
         max_epochs=epochs,
@@ -76,12 +76,12 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
         device=device,
         train_split=False,
         verbose=0,
-        callbacks=[cb],
+        #callbacks=[cb],
     )
     
-    _ = pickle.dumps(tcn)  # raises Exception
-    del cb.pbar
-    _ = pickle.dumps(tcn)  # works
+    #_ = pickle.dumps(tcn)  # raises Exception
+    #del cb.pbar
+    #_ = pickle.dumps(tcn)  # works
 
     #pipeline = Pipeline(steps=[('data convert',Slicer()),('tcn', classifier)])
     #pipeline = Pipeline(steps=[('tensor data',ToTensor()),('tcn', classifier)])
