@@ -32,7 +32,7 @@ from scikeras.wrappers import KerasClassifier
 from scikeras.wrappers import KerasClassifier, KerasRegressor
 import keras
 from keras import Sequential
-import pickle
+from keras import layers
 
 #import load_data as ld
 
@@ -57,6 +57,24 @@ class ToTensor(BaseEstimator,TransformerMixin):
    def transform(self,X,y=None):
       X = torch.from_numpy(X)
       return X
+
+# Define Time Series Classification Transformer
+# https://keras.io/examples/timeseries/timeseries_classification_transformer/  
+def transformer_encoder(inputs, head_size, num_heads, ff_dim, dropout=0):
+    # Attention and Normalization
+    x = layers.MultiHeadAttention(
+        key_dim=head_size, num_heads=num_heads, dropout=dropout
+    )(inputs, inputs)
+    x = layers.Dropout(dropout)(x)
+    x = layers.LayerNormalization(epsilon=1e-6)(x)
+    res = x + inputs
+
+    # Feed Forward Part
+    x = layers.Conv1D(filters=ff_dim, kernel_size=1, activation="relu")(res)
+    x = layers.Dropout(dropout)(x)
+    x = layers.Conv1D(filters=inputs.shape[-1], kernel_size=1)(x)
+    x = layers.LayerNormalization(epsilon=1e-6)(x)
+    return x + res
 
 # TCN
 def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
@@ -160,6 +178,59 @@ def pipeBuild_Sequential(build_fn=[None],warm_start=[False],random_state=[None],
         'seq__class_weight': class_weight,
     }]
     return pipeline, params
+
+
+# TRANSFORMER
+# This is a simple model and was included to test SciKeras with SKLearn
+def pipeBuild_KerasTransformer(build_fn=[None],warm_start=[False],random_state=[None],optimizer=['rmsprop'],
+                         loss=['sparse_categorical_crossentropy'],metrics=[None],batch_size=[None],validation_batch_size=[None],
+                         verbose=[1],callbacks=[None],validation_split=[0.0],shuffle=[True],
+                         run_eagerly=[False],epochs=[1],class_weight=[None]): 
+    
+    def get_model(input_shape, head_size, num_heads, ff_dim, num_transformer_blocks, mlp_units, 
+                  dropout=0, mlp_dropout=0,
+    ):
+        inputs = keras.Input(shape=input_shape)
+        x = inputs
+        for _ in range(num_transformer_blocks):
+            x = transformer_encoder(x, head_size, num_heads, ff_dim, dropout)
+
+        x = layers.GlobalAveragePooling1D(data_format="channels_last")(x)
+        for dim in mlp_units:
+            x = layers.Dense(dim, activation="relu")(x)
+            x = layers.Dropout(mlp_dropout)(x)
+        outputs = layers.Dense(n_classes, activation="softmax")(x)
+        return keras.Model(inputs, outputs)
+    
+    classifier = KerasClassifier(
+        model=get_model,
+        loss=loss,
+        optimizer=optimizer,
+        hidden_layer_dim=100,
+    )
+    
+    pipeline = Pipeline(steps=[('seq', classifier)])
+
+    params = [{
+        'seq__build_fn': build_fn,
+        'seq__warm_start': warm_start,
+        'seq__random_state': random_state,
+        'seq__optimizer': optimizer,
+        'seq__loss': loss,
+        'seq__metrics': metrics,
+        'seq__batch_size': batch_size,
+        'seq__validation_batch_size': validation_batch_size,
+        'seq__verbose': verbose,
+        'seq__callbacks': callbacks,
+        'seq__shuffle': shuffle,
+        'seq__run_eagerly': run_eagerly,
+        'seq__validation_split': validation_split,
+        'seq__epochs': epochs,
+        'seq__class_weight': class_weight,
+    }]
+    return pipeline, params
+
+
 
 
 # DEEPLEARNING CLASSIFICATON GIRD BUILDER
