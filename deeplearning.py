@@ -182,7 +182,7 @@ def pipeBuild_Sequential(build_fn=[None],warm_start=[False],random_state=[None],
 
 # TRANSFORMER
 # This is a simple model and was included to test SciKeras with SKLearn
-def pipeBuild_KerasTransformer(build_fn=[None],warm_start=[False],random_state=[None],optimizer=['rmsprop'],
+def pipeBuild_Transformer(build_fn=[None],warm_start=[False],random_state=[None],optimizer=['rmsprop'],
                          loss=['sparse_categorical_crossentropy'],metrics=[None],batch_size=[None],validation_batch_size=[None],
                          verbose=[1],callbacks=[None],validation_split=[0.0],shuffle=[True],
                          run_eagerly=[False],epochs=[1],class_weight=[None]): 
@@ -209,24 +209,24 @@ def pipeBuild_KerasTransformer(build_fn=[None],warm_start=[False],random_state=[
         hidden_layer_dim=100,
     )
     
-    pipeline = Pipeline(steps=[('seq', classifier)])
+    pipeline = Pipeline(steps=[('transformer', classifier)])
 
     params = [{
-        'seq__build_fn': build_fn,
-        'seq__warm_start': warm_start,
-        'seq__random_state': random_state,
-        'seq__optimizer': optimizer,
-        'seq__loss': loss,
-        'seq__metrics': metrics,
-        'seq__batch_size': batch_size,
-        'seq__validation_batch_size': validation_batch_size,
-        'seq__verbose': verbose,
-        'seq__callbacks': callbacks,
-        'seq__shuffle': shuffle,
-        'seq__run_eagerly': run_eagerly,
-        'seq__validation_split': validation_split,
-        'seq__epochs': epochs,
-        'seq__class_weight': class_weight,
+        'transformer__build_fn': build_fn,
+        'transformer__warm_start': warm_start,
+        'transformer_random_state': random_state,
+        'transformer__optimizer': optimizer,
+        'transformer__loss': loss,
+        'transformer__metrics': metrics,
+        'transformer__batch_size': batch_size,
+        'transformer__validation_batch_size': validation_batch_size,
+        'transformer__verbose': verbose,
+        'transformer__callbacks': callbacks,
+        'transformer__shuffle': shuffle,
+        'transformer__run_eagerly': run_eagerly,
+        'transformer__validation_split': validation_split,
+        'transformer__epochs': epochs,
+        'transformer__class_weight': class_weight,
     }]
     return pipeline, params
 
