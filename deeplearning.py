@@ -144,7 +144,8 @@ def pipeBuild_LSTM(build_fn=[None],warm_start=[False],random_state=[None],optimi
         n_classes_ = meta["n_classes_"]
 
         model = keras.models.Sequential()
-        model.add(keras.layers.LSTM(n_features_in_, input_shape=X_shape_[1:]))
+        #model.add(keras.layers.LSTM(n_features_in_, input_shape=X_shape_[1:]))
+        model.add(keras.layers.LSTM(n_features_in_, batch_input_shape=(batch_size, X_shape_[1:], X_shape_[2:]), stateful=True))
         model.add(keras.layers.Dense(n_classes_))
         model.add(keras.layers.Activation("softmax"))
         return model
