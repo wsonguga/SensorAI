@@ -128,6 +128,56 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
     return pipeline, params
 
 
+# LSTM
+# This is a simple model and was included to test SciKeras with SKLearn
+def pipeBuild_LSTM(build_fn=[None],warm_start=[False],random_state=[None],optimizer=['rmsprop'],
+                         loss=['sparse_categorical_crossentropy'],metrics=[None],batch_size=[None],validation_batch_size=[None],
+                         verbose=[1],callbacks=[None],validation_split=[0.0],shuffle=[True],
+                         run_eagerly=[False],epochs=[1],class_weight=[None]): 
+    
+    #def get_model(hidden_layer_dim, meta):
+    def get_model(meta):
+        # note that meta is a special argument that will be
+        # handed a dict containing input metadata
+        n_features_in_ = meta["n_features_in_"]
+        X_shape_ = meta["X_shape_"]
+        n_classes_ = meta["n_classes_"]
+
+        model = keras.models.Sequential()
+        model.add(keras.layers.LSTM(n_features_in_, input_shape=X_shape_[1:]))
+        model.add(keras.layers.Dense(n_classes_))
+        model.add(keras.layers.Activation("softmax"))
+        return model
+    
+    classifier = KerasClassifier(
+        model=get_model,
+        loss=loss,
+        optimizer=optimizer,
+        #hidden_layer_dim=100,
+    )
+    
+    pipeline = Pipeline(steps=[('lstm', classifier)])
+
+    params = [{
+        'lstm__build_fn': build_fn,
+        'lstm__warm_start': warm_start,
+        'lstm__random_state': random_state,
+        'lstm__optimizer': optimizer,
+        'lstm__loss': loss,
+        'lstm__metrics': metrics,
+        'lstm__batch_size': batch_size,
+        'lstm__validation_batch_size': validation_batch_size,
+        'lstm__verbose': verbose,
+        'lstm__callbacks': callbacks,
+        'lstm__shuffle': shuffle,
+        'lstm__run_eagerly': run_eagerly,
+        'lstm__validation_split': validation_split,
+        'lstm__epochs': epochs,
+        'lstm__class_weight': class_weight,
+    }]
+    return pipeline, params
+
+
 # SEQUENTIAL
 # This is a simple model and was included to test SciKeras with SKLearn
 def pipeBuild_Sequential(build_fn=[None],warm_start=[False],random_state=[None],optimizer=['rmsprop'],
