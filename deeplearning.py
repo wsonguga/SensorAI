@@ -139,7 +139,7 @@ def pipeBuild_LSTM(build_fn=[None],warm_start=[False],random_state=[None],optimi
                          run_eagerly=[False],epochs=[1],class_weight=[None]): 
     
     #def get_model(hidden_layer_dim, meta):
-    def get_model(meta):
+    def get_model(look_back, meta):
         # note that meta is a special argument that will be
         # handed a dict containing input metadata
         n_features_in_ = meta["n_features_in_"]
@@ -147,16 +147,19 @@ def pipeBuild_LSTM(build_fn=[None],warm_start=[False],random_state=[None],optimi
         n_classes_ = meta["n_classes_"]
 
         model = Sequential()
+        model.add(LSTM(4, input_shape=(X_shape_[1:], look_back)))
+        model.add(Dense(1))
         #model.add(keras.layers.LSTM(n_features_in_, input_shape=X_shape_[1:]))
-        model.add(keras.layers.LSTM(n_features_in_, batch_input_shape=(batch_size, X_shape_[1:], X_shape_[2:]), stateful=True))
-        model.add(keras.layers.Dense(n_classes_))
-        model.add(keras.layers.Activation("softmax"))
+        #model.add(keras.layers.LSTM(n_features_in_, batch_input_shape=(batch_size, X_shape_[1:], X_shape_[2:]), stateful=True))
+        #model.add(keras.layers.Dense(n_classes_))
+        #model.add(keras.layers.Activation("softmax"))
         return model
     
     classifier = KerasClassifier(
         model=get_model,
         loss=loss,
         optimizer=optimizer,
+        look_back=2
         #hidden_layer_dim=100,
     )
     
