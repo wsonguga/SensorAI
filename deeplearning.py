@@ -29,7 +29,10 @@ from skorch.helper import SliceDict, SliceDataset
 from skorch.callbacks import ProgressBar
 from pytorch_weight_norm import WeightNorm
 from scikeras.wrappers import KerasClassifier
-from scikeras.wrappers import KerasClassifier, KerasRegressor
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, LSTM
+#from scikeras.wrappers import KerasClassifier, KerasRegressor
 import keras
 from keras import Sequential
 from keras import layers
@@ -143,7 +146,7 @@ def pipeBuild_LSTM(build_fn=[None],warm_start=[False],random_state=[None],optimi
         X_shape_ = meta["X_shape_"]
         n_classes_ = meta["n_classes_"]
 
-        model = keras.models.Sequential()
+        model = Sequential()
         #model.add(keras.layers.LSTM(n_features_in_, input_shape=X_shape_[1:]))
         model.add(keras.layers.LSTM(n_features_in_, batch_input_shape=(batch_size, X_shape_[1:], X_shape_[2:]), stateful=True))
         model.add(keras.layers.Dense(n_classes_))
