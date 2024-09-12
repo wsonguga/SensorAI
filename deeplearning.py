@@ -79,7 +79,7 @@ def transformer_encoder(inputs, head_size, num_heads, ff_dim, dropout=0):
     x = layers.LayerNormalization(epsilon=1e-6)(x)
     return x + res
 
-# TCN
+# TCN with Skorch
 def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
                   dilation_reset=[None],dropout=[0.1],causal=[True],use_norm=[None],
                   activation=['relu'],kernel_initializer=['xavier_uniform'],use_skip_connections=[False],
@@ -97,6 +97,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
         device=device,
         train_split=False,
         verbose=0,
+        batch_first=True,
         #callbacks=[cb],
     )
     
