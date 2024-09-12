@@ -23,6 +23,7 @@ from sklearn.metrics import ConfusionMatrixDisplay, classification_report, RocCu
 from sklearn.base import BaseEstimator, TransformerMixin
 import torch
 from pytorch_tcn import TCN
+from torch.nn.parallel import DataParallel
 #from torch.utils.data import DataLoader
 from skorch import NeuralNetClassifier
 from skorch.helper import SliceDict, SliceDataset
@@ -101,6 +102,8 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
         #callbacks=[cb],
     )
     
+    classifier = DataParallel(classifier, device_ids=[0]) 
+
     #_ = pickle.dumps(tcn)  # raises Exception
     #del cb.pbar
     #_ = pickle.dumps(tcn)  # works
