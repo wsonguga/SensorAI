@@ -102,7 +102,7 @@ def pipeBuild_TCN(num_inputs,num_channels,kernel_size=[4],dilations=[None],
         #callbacks=[cb],
     )
     
-    classifier = DataParallel(classifier, device_ids=[0]) 
+    #classifier = DataParallel(classifier, device_ids=[0]) 
 
     #_ = pickle.dumps(tcn)  # raises Exception
     #del cb.pbar
