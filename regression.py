@@ -455,7 +455,7 @@ def pipeBuild_LarsCV(fit_intercept=[True], verbose=[False], max_iter=[500], norm
         'larscv__fit_intercept': fit_intercept,
         'larscv__verbose': verbose,
         'larscv__max_iter': max_iter,        
-        'larscv__normalize':normalize,
+        #'larscv__normalize':normalize,
         'larscv__precompute': precompute,
         'larscv__cv': cv,
         'larscv__max_n_alphas': max_n_alphas,
