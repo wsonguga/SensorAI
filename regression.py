@@ -516,7 +516,7 @@ def pipeBuild_LassoLars(alpha=[1.0], *, fit_intercept=[True], verbose=[False], n
         'lassolars__alpha': alpha,
         'lassolars__fit_intercept': fit_intercept,
         'lassolars__verbose': verbose,
-        'lassolars__normalize': normalize,
+        #'lassolars__normalize': normalize,
         'lassolars__precompute': precompute,
         'lassolars__max_iter': max_iter,
         'lassolars__eps': eps,
