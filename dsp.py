@@ -22,7 +22,8 @@ from tqdm import tqdm
 # from dsp_utils import plot_sim_waves, plot_noise_signal, plot_decomposed_components, plot_filtered_signal
 import pywt
 import ssqueezepy as sq
-from PyEMD import EEMD, EMD, CEEMDAN
+
+#from PyEMD import EEMD, EMD, CEEMDAN #old 
 from vmdpy import VMD
 from pylab import (arange, flipud, linspace, cos, pi, log, hanning,
                    ceil, log2, floor, empty_like, fft, ifft, fabs, exp, roll, convolve)
