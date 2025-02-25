@@ -7,3 +7,4 @@ data/synthetic_scg.zip
 temp.py
 sk_grid_builder.py
 test.py
+pytorch_weight_norm.py
