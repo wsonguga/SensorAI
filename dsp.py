@@ -22,8 +22,8 @@ from tqdm import tqdm
 # from dsp_utils import plot_sim_waves, plot_noise_signal, plot_decomposed_components, plot_filtered_signal
 import pywt
 import ssqueezepy as sq
-
-#from PyEMD import EEMD, EMD, CEEMDAN #old 
+from pyemd import emd, eemd, ceemdan
+###from PyEMD import EEMD, EMD, CEEMDAN #old 
 from vmdpy import VMD
 from pylab import (arange, flipud, linspace, cos, pi, log, hanning,
                    ceil, log2, floor, empty_like, fft, ifft, fabs, exp, roll, convolve)
@@ -1655,7 +1655,8 @@ def emd_decomposition(signal, show=False):
     signal = standize_1D(signal)
 
     # Create an instance of the EMD class
-    emd = EMD()
+    emd = emd()
+    ###emd = EMD()
 
     # Perform EMD decomposition to obtain IMFs
     imfs = emd(signal)
@@ -1687,7 +1688,8 @@ def eemd_decomposition(signal, noise_width=0.05, ensemble_size=100, show=False):
     signal = standize_1D(signal)
 
     # Create an instance of the EEMD class with specified ensemble parameters
-    eemd = EEMD(trials=ensemble_size, noise_width=noise_width)
+    eemd = eemd(trials=ensemble_size, noise_width=noise_width)
+    ###eemd = EEMD(trials=ensemble_size, noise_width=noise_width)
 
     # Perform EEMD decomposition to obtain IMFs
     imfs = eemd.eemd(signal)
@@ -1715,7 +1717,8 @@ def ceemd_decomposition(signal, show=False):
     signal = standize_1D(signal)
 
     # Create an instance of the CEEMDAN class
-    ceemdan = CEEMDAN()
+    ceemdan = ceemdan()
+    ###ceemdan = CEEMDAN()
 
     # Perform CEEMDAN decomposition on the preprocessed signal to obtain IMFs
     imfs = ceemdan.ceemdan(signal)

@@ -1,5 +1,5 @@
 import numpy as np
-from PyEMD import emd
+from pyemd import emd
 
 # Define two histograms as numpy arrays
 histogram_1 = np.array([0.0, 1.0, 2.0, 0.0])
