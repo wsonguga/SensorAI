@@ -23,7 +23,7 @@ from tqdm import tqdm
 import pywt
 import ssqueezepy as sq
 ###from pyemd import eemd, emd, ceemdan
-from pyemd import EEMD, EMD, CEEMDAN #old 
+from py_emd import EEMD, EMD, CEEMDAN #old 
 from vmdpy import VMD
 from pylab import (arange, flipud, linspace, cos, pi, log, hanning,
                    ceil, log2, floor, empty_like, fft, ifft, fabs, exp, roll, convolve)
