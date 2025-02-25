@@ -8,4 +8,4 @@ temp.py
 sk_grid_builder.py
 test.py
 pytorch_weight_norm.py
-deeplearning.py
+lib/deeplearning.py
