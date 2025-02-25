@@ -1655,8 +1655,8 @@ def emd_decomposition(signal, show=False):
     signal = standize_1D(signal)
 
     # Create an instance of the EMD class
-    emd = emd()
-    ###emd = EMD()
+    ###emd = emd()
+    emd = EMD()
 
     # Perform EMD decomposition to obtain IMFs
     imfs = emd(signal)
@@ -1688,8 +1688,8 @@ def eemd_decomposition(signal, noise_width=0.05, ensemble_size=100, show=False):
     signal = standize_1D(signal)
 
     # Create an instance of the EEMD class with specified ensemble parameters
-    eemd = eemd(trials=ensemble_size, noise_width=noise_width)
-    ###eemd = EEMD(trials=ensemble_size, noise_width=noise_width)
+    ###eemd = eemd(trials=ensemble_size, noise_width=noise_width)
+    eemd = EEMD(trials=ensemble_size, noise_width=noise_width)
 
     # Perform EEMD decomposition to obtain IMFs
     imfs = eemd.eemd(signal)
@@ -1717,8 +1717,8 @@ def ceemd_decomposition(signal, show=False):
     signal = standize_1D(signal)
 
     # Create an instance of the CEEMDAN class
-    ceemdan = ceemdan()
-    ###ceemdan = CEEMDAN()
+    ###ceemdan = ceemdan()
+    ceemdan = CEEMDAN()
 
     # Perform CEEMDAN decomposition on the preprocessed signal to obtain IMFs
     imfs = ceemdan.ceemdan(signal)
