@@ -154,7 +154,7 @@ def pipeBuild_IsolationForest(n_estimators=[100],max_samples=['auto'], contamina
   return pipeline, params
 
 # OUTLIE DETECTION GRID BUILDER
-def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_number=10):
+def gridsearch_outlier_old(names,pipes,X,y,scoring='neg_mean_squared_error',plot_number=10):
     # iterate over classifiers
     for j in range(len(names)):
 
@@ -199,7 +199,7 @@ def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_num
     return
 
 # OUTLIER CLUSTER
-def gridsearch_clustering(names,pipes,X,y,scoring='neg_mean_squared_error',plot_number='all'): #scoring='rand_score'
+def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_number='all'): #scoring='rand_score'
     # iterate over cluterers
     for j in range(len(names)):
 
