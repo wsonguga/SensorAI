@@ -199,7 +199,7 @@ def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_num
     return
 
 # OUTLIER CLUSTER
-def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'):
+def gridsearch_clustering(names,pipes,X,y,scoring='neg_mean_squared_error',plot_number='all'): #scoring='rand_score'
     # iterate over cluterers
     for j in range(len(names)):
 
@@ -209,7 +209,8 @@ def gridsearch_clustering(names,pipes,X,y,scoring='rand_score',plot_number='all'
         print("Best parameter (CV score=%0.3f):" % grid_search.best_score_)
         print(grid_search.best_params_)
         print("Best "+scoring+"score: ",grid_search.best_score_)
-        labels = grid_search.best_estimator_.steps[0][1].labels_
+        labels = y
+        #####labels = grid_search.best_estimator_.steps[0][1].labels_
         #print("Best Model Labels: ",labels)
         noise = np.isin(labels, -1)
         if np.any(noise)==True:
