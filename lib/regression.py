@@ -29,7 +29,7 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report, auc, roc_curve, roc_auc_score
 from sklearn.metrics import PredictionErrorDisplay 
 
-import utils
+import lib.utils as utils
 
 #import load_data as ld
 
