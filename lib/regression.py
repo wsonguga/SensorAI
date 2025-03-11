@@ -20,7 +20,8 @@ from sklearn.pipeline import Pipeline
 from sklearn.datasets import make_moons, make_circles, make_classification
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.svm import SVR, NuSVR, LinearSVR
-from sklearn.linear_model import ARDRegression, BayesianRidge, ElasticNet, ElasticNetCV, MultiTaskElasticNet, MultiTaskElasticNetCV, GammaRegressor, HuberRegressor, Lars, LarsCV, Lasso, LassoCV, LassoLars, LassoLarsCV, LassoLarsIC, LinearRegression, OrthogonalMatchingPursuit, OrthogonalMatchingPursuitCV, PassiveAggressiveRegressor, Perceptron, PoissonRegressor, QuantileRegressor, RANSACRegressor, Ridge, RidgeCV, SGDRegressor, TheilSenRegressor, TweedieRegressor
+from sklearn.linear_model import ARDRegression, BayesianRidge, ElasticNet, ElasticNetCV, MultiTaskElasticNet, MultiTaskElasticNetCV, GammaRegressor, HuberRegressor, Lars, LarsCV, Lasso, LassoCV, LassoLars, LassoLarsCV, LassoLarsIC, LinearRegression, OrthogonalMatchingPursuit, OrthogonalMatchingPursuitCV, PassiveAggressiveRegressor, PoissonRegressor, QuantileRegressor, RANSACRegressor, Ridge, RidgeCV, SGDRegressor, TheilSenRegressor, TweedieRegressor
+from sklearn.neural_network import  MLPRegressor
 
 from tslearn.neighbors import KNeighborsTimeSeriesRegressor
 from tslearn.svm import TimeSeriesSVR
@@ -33,7 +34,7 @@ import lib.utils as utils
 
 #import load_data as ld
 
-algo_list = ['svr','nusvr','linear svr','ridge','ridge cv','linear regression','sgd','ard','bayesian ridge','passive aggressive','gamma','poisson','tweedie','huber','quantile','ranscar','thielsen','elasticnet','elasticnet cv','multitask elastic net','multitask elastic net cv','lars','lasso','lasso cv','lasso lars','lasso lars cv','lasso lars ic','orthogonal matching pursuit','orthogonal matching pursuit cv','ts knn','ts svr','perceptron']
+algo_list = ['svr','nusvr','linear svr','ridge','ridge cv','linear regression','sgd','ard','bayesian ridge','passive aggressive','gamma','poisson','tweedie','huber','quantile','ranscar','thielsen','elasticnet','elasticnet cv','multitask elastic net','multitask elastic net cv','lars','lasso','lasso cv','lasso lars','lasso lars cv','lasso lars ic','orthogonal matching pursuit','orthogonal matching pursuit cv','ts knn','ts svr','mlpregressor']
 
 # All inputs execpt random_state should be lists of values, even if only one value
 
@@ -568,30 +569,36 @@ def pipeBuild_LassoLarsIC(criterion=['aic'], *, fit_intercept=[True], verbose=[F
     }]
   return pipeline, params
 
-# PERCEPTRON
-def pipeBuild_Perceptron(penalty=[None], alpha=[0.0001], l1_ratio=[0.15], fit_intercept=[True], max_iter=[1000], 
-                         tol=[0.001], shuffle=[True], verbose=[0], eta0=[1.0], n_jobs=[None], random_state=0, 
-                         early_stopping=[False], validation_fraction=[0.1], n_iter_no_change=[5],
-                         class_weight=[None], warm_start=[False]):
-  regressor = Perceptron(random_state=random_state)
-  pipeline = Pipeline(steps=[('perceptron', regressor)])
+# MLP REGRESSPR
+def pipeBuild_MLPRegressor(hidden_layer_sizes=[(100,)], activation=['relu'], alpha=[0.0001], batch_size=['auto'], learning_rate=['constant'], learning_rate_init=[0.001], 
+                         power_t=[0.5], max_iter=[200], random_state=0, tol=[0.001], shuffle=[True], verbose=[0], warm_start=[False], momentum=[0.9], nesterovs_momentum=[True], 
+                         early_stopping=[False], validation_fraction=[0.1], beta_1=[0.9], beta_2=[0.999], epsilon=[1e-08], n_iter_no_change=[5],
+                         max_fun=[15000]):
+  regressor = MLPRegressor(random_state=random_state)
+  pipeline = Pipeline(steps=[('mlpregressor', regressor)])
   params = [{
-        'perceptron__penalty': penalty,
-        'perceptron__alpha': alpha,
-        'perceptron__l1_ratio': l1_ratio,
-        'perceptron__fit_intercept': fit_intercept,
-        'perceptron__max_iter': max_iter,
-        'perceptron__tol': tol,
-        'perceptron__shuffle': shuffle,
-        'perceptron__verbose': verbose,                
-        'perceptron__tol': tol,
-        'perceptron__eta0': eta0,
-        'perceptron__n_jobs': n_jobs,
-        'perceptron__early_stopping': early_stopping,
-        'perceptron__validation_fraction': validation_fraction,
-        'perceptron__n_iter_no_change': n_iter_no_change,
-        'perceptron__class_weight': class_weight,
-        'perceptron__warm_start': warm_start,
+        'mlpregressor__hidden_layer_sizes': hidden_layer_sizes,
+        'mlpregressor__activation': activation,
+        'mlpregressor__alpha': alpha,
+        'mlpregressor__batch_size': batch_size,
+        'mlpregressor__learning_rate': learning_rate,
+        'mlpregressor__learning_rate_init': learning_rate_init,
+        'mlpregressor__power_t': power_t,
+        'mlpregressor__max_iter': max_iter,
+        'mlpregressor__shuffle': shuffle,
+        'mlpregressor__random_state': random_state,
+        'mlpregressor__tol': tol,                
+        'mlpregressor__verbose': verbose,                
+        'mlpregressor__warm_start': warm_start,
+        'mlpregressor__momentum': momentum,
+        'mlpregressor__nesterovs_momentum': nesterovs_momentum,
+        'mlpregressor__early_stopping': early_stopping,
+        'mlpregressor__validation_fraction': validation_fraction,
+        'mlpregressor__beta_1': beta_1, 
+        'mlpregressor__beta_2': beta_2, 
+        'mlpregressor__epsilon': epsilon, 
+        'mlpregressor__n_iter_no_change': n_iter_no_change,
+        'mlpregressor__max_fun': max_fun,                
     }]
   return pipeline, params
 
@@ -844,10 +851,10 @@ if __name__ == '__main__':
     tssvr = pipeBuild_KNeighborsTimeSeriesRegressor()
     names.append('ts svr')
     pipes.append(tssvr)
-  elif algo_name == 'perceptron':
-    perceptron = pipeBuild_Perceptron()
-    names.append('perceptron')
-    pipes.append(perceptron)
+  elif algo_name == 'mlpregressor':
+    mlpregressor = pipeBuild_MLPRegressorn()
+    names.append('mlpregressorn')
+    pipes.append(mlpregressor)
   elif algo_name == 'orthogonal matching pursuit':
     omp = pipeBuild_OrthogonalMatchingPursuit()
     names.append('orthogonal matching pursuit')
