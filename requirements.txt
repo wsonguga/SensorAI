@@ -21,4 +21,3 @@ jupyter
 h5py
 chart_studio
 plotly
-pyemd
