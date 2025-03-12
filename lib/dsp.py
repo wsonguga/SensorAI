@@ -7,7 +7,7 @@ from numpy.fft import fft, ifft, fftfreq
 import scipy
 import scipy.signal
 import scipy.ndimage
-from scipy.signal import butter, lfilter, iirnotch, correlate, welch, find_peaks, argrelextrema
+from scipy.signal import butter, lfilter, iirnotch, correlate, welch, find_peaks, argrelextrema, gausspulse, unit_impulse
 from scipy.interpolate import interp1d
 from scipy.fft import fft, ifft
 from scipy.stats import entropy
@@ -286,6 +286,25 @@ def pulse_wave(duration=10, sampling_rate=100, amplitude=1, d=0.5, frequency=1, 
         plot_sim_waves(pulse_wave, 'Pulse Wave')
 
     return pulse_wave
+
+
+def gaussian_pulse(duration=10, sampling_rate=10, amplitude=1, frequency=5, bandwidth=0.5, show=False):
+    # Define the time array    
+    t = np.linspace(-1, 1, duration * sampling_rate, endpoint=False)
+
+    # Generate the Gaussian pulse
+    pulse = gausspulse(t, fc=frequency, bw=bandwidth) * amplitude
+
+    if show:
+        # Plot the pulse
+        plt.plot(t, pulse)
+        plt.xlabel('Time')
+        plt.ylabel('Amplitude')
+        plt.title('Gaussian Pulse')
+        plt.grid(True)
+        plt.show()
+
+    return pulse
 
 
 # ==============================================================================
