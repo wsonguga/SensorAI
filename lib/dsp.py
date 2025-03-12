@@ -277,6 +277,7 @@ def pulse_wave(duration=10, sampling_rate=100, amplitude=1, d=0.5, frequency=1, 
 
     for n in range(1, expansion+1):
         sum_of_ += np.sinc(n * d) * np.cos(2 * np.pi * n * frequency * time)
+        ### pulse_signal = np.exp(-t**2 / (2 * 0.05**2))
 
     # Calculate the final pulse wave signal
     pulse_wave = amplitude * d * (1 + 2 * sum_of_)
@@ -4281,3 +4282,51 @@ def generate_regression_data(amplitude=None,frequency=None,noise=False,wave_numb
   y = X[:, -1] # label
 
   return x, y
+
+# KALMAN FILTER
+def kalman_filter(x, x_last=0, p_last=0, Q=0.1, R=0.1):
+    """
+    Applies the Kalman filter to a sequence of measurements.
+
+    Parameters:
+    - x (list): List of measurements to filter.
+    - x_last (float): Previous filtered state estimate. Default is 0.
+    - p_last (float): Previous error covariance estimate. Default is 0.
+    - Q (float): Process noise covariance. Default is 0.1.
+    - R (float): Measurement noise covariance. Default is 0.1.
+
+    Returns:
+    - y (list): List of filtered state estimates.
+    """
+
+    def kalman(z_measure, x_last, p_last, Q, R):
+        """
+        Kalman filter implementation for a single measurement.
+
+        Parameters:
+        - z_measure (float): Current measurement.
+        - x_last (float): Previous filtered state estimate.
+        - p_last (float): Previous error covariance estimate.
+        - Q (float): Process noise covariance.
+        - R (float): Measurement noise covariance.
+
+        Returns:
+        - x_now (float): Current filtered state estimate.
+        - p_last (float): Updated error covariance estimate.
+        - x_last (float): Updated filtered state estimate for the next iteration.
+        """
+        x_mid = x_last
+        p_mid = p_last + Q
+        kg = p_mid / (p_mid + R)
+        x_now = x_mid + kg * (z_measure - x_mid)
+        p_now = (1-kg) * p_mid
+        p_last = p_now
+        x_last = x_now
+        return x_now, p_last, x_last
+
+    y = []
+    for i in range(len(x)):
+        pred, p_last, x_last = kalman(x[i], x_last, p_last, Q, R)
+        y.append(pred)
+
+    return y
