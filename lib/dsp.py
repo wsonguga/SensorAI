@@ -307,6 +307,21 @@ def gaussian_pulse(duration=10, sampling_rate=10, amplitude=1, frequency=5, band
     return pulse
 
 
+def impulse(duration=100, amplitude=1, show=False):
+    # Generate the Gaussian pulse
+    impulse = unit_impulse(duration, 'mid') * amplitude
+
+    if show:
+        # Plot the pulse
+        plt.plot(np.arange(-duration/2, duration/2), impulse)
+        plt.xlabel('Time')
+        plt.ylabel('Amplitude')
+        plt.title('Impulse')
+        plt.grid(True)
+        plt.show()
+
+    return impulse
+
 # ==============================================================================
 # ------------------------------------Noise-------------------------------------
 # ==============================================================================
