@@ -6,9 +6,11 @@ padasip==1.2.2
 pandas
 pytz
 PyWavelets
---no-binary scikit-learn
+scikit-learn
+#--no-binary scikit-learn
 sktime
---no-binary scipy
+scipy
+#--no-binary scipy
 seaborn
 statsmodels==0.13.5
 tslearn==0.6.1
