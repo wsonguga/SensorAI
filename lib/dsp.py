@@ -1688,7 +1688,7 @@ def emd_decomposition(signal, show=False):
         A list of Intrinsic Mode Functions (IMFs) obtained from EMD decomposition.
     """
     # Standardize the input signal
-    signal = standize_1D(signal)
+    #signal = standize_1D(signal)
 
     # Create an instance of the EMD class
     ###emd = emd()
