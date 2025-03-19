@@ -1695,7 +1695,7 @@ def emd_decomposition(signal, show=False):
     emd = EMD()
 
     # Perform EMD decomposition to obtain IMFs
-    imfs = emd(signal)
+    imfs = emd(signal,np.linspace(0,10,len(signal),endpoint=False))
 
     if show:
         plot_decomposed_components(signal, imfs, 'EMD')
