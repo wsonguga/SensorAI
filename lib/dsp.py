@@ -1688,14 +1688,15 @@ def emd_decomposition(signal, show=False):
         A list of Intrinsic Mode Functions (IMFs) obtained from EMD decomposition.
     """
     # Standardize the input signal
-    #signal = standize_1D(signal)
+    signal = standize_1D(signal)
 
     # Create an instance of the EMD class
     ###emd = emd()
     emd = EMD()
 
     # Perform EMD decomposition to obtain IMFs
-    imfs = emd(signal,np.linspace(0,10,len(signal),endpoint=False))
+    imfs = emd(signal)
+    #imfs = emd(signal,np.linspace(0,10,len(signal),endpoint=False))
 
     if show:
         plot_decomposed_components(signal, imfs, 'EMD')
