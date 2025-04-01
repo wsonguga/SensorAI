@@ -2398,7 +2398,7 @@ def fft_denoise(signal, threshold, show=False):
     return ffilt
 
 
-def wavelet_denoise(data, method, threshold, show=False):
+def wavelet_denoise(data, method, threshold, show=False,title="Wavelet Denoising"):
     """
     Applies wavelet-based denoising to the input data.
 
@@ -2431,7 +2431,7 @@ def wavelet_denoise(data, method, threshold, show=False):
     datarec = pywt.waverec(coeffs, method)
 
     if show:
-        plot_filtered_signal(datarec, data, "Wavelet Denoising")
+        plot_filtered_signal(datarec, data, title)
 
     return datarec
 
