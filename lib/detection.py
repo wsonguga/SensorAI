@@ -28,7 +28,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import plotly.express as px
 
-from anomaly_detection import sst_class as sst
+#from anomaly_detection import sst_class as sst
 
 #import tutorials_old.load_data as ld
 
