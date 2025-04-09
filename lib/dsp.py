@@ -4,6 +4,7 @@ import warnings
 import matplotlib.pyplot as plt
 import numpy as np
 from numpy.fft import fft, ifft, fftfreq
+import cmath
 import scipy
 import scipy.signal
 import scipy.ndimage
@@ -4365,3 +4366,70 @@ def kalman_filter(x, x_last=0, p_last=0, Q=0.1, R=0.1):
         y.append(pred)
 
     return y
+
+# THD CALCULATION
+def calculate_thd(signal, fundamental_frequency, sample_rate, num_harmonics=5):
+    """
+    Calculates the Total Harmonic Distortion (THD) of a signal.
+
+    Args:
+        signal (np.ndarray): The input signal.
+        fundamental_frequency (float): The fundamental frequency of the signal in Hz.
+        sample_rate (float): The sampling rate of the signal in Hz.
+        num_harmonics (int, optional): The number of harmonics to consider. Defaults to 5.
+
+    Returns:
+        float: The THD of the signal in percentage.
+    """
+    N = len(signal)
+    yf = fft(signal)
+    xf = np.fft.fftfreq(N, 1 / sample_rate)
+    
+    # Find the index of the fundamental frequency
+    fundamental_index = np.argmin(np.abs(xf - fundamental_frequency))
+
+    # Calculate the RMS value of the fundamental component
+    fundamental_rms = np.abs(yf[fundamental_index]) / N * 2 
+
+    # Calculate the RMS value of the harmonics
+    harmonics_rms = 0
+    for i in range(2, num_harmonics + 1):
+        harmonic_frequency = fundamental_frequency * i
+        harmonic_index = np.argmin(np.abs(xf - harmonic_frequency))
+        harmonics_rms += (np.abs(yf[harmonic_index]) / N * 2)**2
+    harmonics_rms = np.sqrt(harmonics_rms)
+
+    # Calculate THD
+    thd = (harmonics_rms / fundamental_rms) * 100
+    return thd
+
+
+# EXTRACT PMU DATA
+def extract_pmu(signal, sampling_rate):
+    """
+    Extracts the primary frequency, amplitude, and phase angle from a waveform signal.
+
+    Args:
+      signal (np.ndarray): Amplitude values of the signal.
+	    sampling_rate (float): The number of samples per second.
+
+    Returns:
+        tuple: Primary frequency (Hz), primary amplitude, and primary phase angle (degrees).
+    """
+    N = len(signal)
+    yf = fft(signal)
+    xf = fftfreq(N, 1 / sampling_rate)
+    
+    positive_freq_indices = np.where(xf >= 0)
+    xf_positive = xf[positive_freq_indices]
+    yf_positive = yf[positive_freq_indices]
+
+    # Find the index of the maximum amplitude (excluding DC component at index 0)
+    primary_freq_index = np.argmax(np.abs(yf_positive[1:])) + 1 
+    
+    primary_frequency = xf_positive[primary_freq_index]
+    primary_amplitude = np.abs(yf_positive[primary_freq_index]) / N * 2  # Scale by 2 for single-sided spectrum
+    primary_phase_angle_rad = cmath.phase(yf_positive[primary_freq_index])
+    primary_phase_angle_deg = np.degrees(primary_phase_angle_rad)
+
+    return primary_frequency, primary_amplitude, primary_phase_angle_deg
