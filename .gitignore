@@ -4,6 +4,8 @@
 __pycache__
 junk.py
 data/synthetic_scg.zip
+data/4k_pmu_thd_data.npy
+data/4k_pmu_thd_labels.npy
 temp.py
 sk_grid_builder.py
 test.py
