@@ -22,7 +22,7 @@ from sklearn.linear_model import SGDOneClassSVM
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.covariance import EllipticEnvelope
 from sklearn.ensemble import IsolationForest
-from sklearn.metrics import ConfusionMatrixDisplay, classification_report
+from sklearn.metrics import confusion_matrix, classification_report
 
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
@@ -216,7 +216,11 @@ def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_num
         if np.any(noise)==True:
             new_noise_label = int(np.amax(labels)+1) # find the max label value
             labels = np.where(labels == -1, new_noise_label, labels)
-            
+
+        print("Accuracy: ",accuracy_score(y_true, labels))
+        print("Precision: ")
+        print("F1 Score: ") 
+        print("Recall: ") 
 
         x_classes = int(np.amax(labels)+1)
         y_classes = int(np.amax(y)+1)
@@ -269,6 +273,7 @@ def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_num
             print("Incorrect plot number value entered")
         fig.update_layout(showlegend=False)
         fig.show()
+      # Confusion Matrix here
     return
 
 if __name__ == '__main__':

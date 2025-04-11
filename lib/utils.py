@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
+import pandas as pd
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 # 此代码需要大改，但暂时可以用
 def calc_mae(gt, pred):
@@ -129,4 +132,23 @@ def plot_averaging_center(center, pieces):
     plt.ylabel('Amplitude')
     plt.xlabel('Time')
     plt.legend()
+    plt.show()
+
+def plot_confusion_matrix(y_true, y_pred, classes, title='Confusion Matrix', cmap='Blues'):
+    """
+    Plots the confusion matrix.
+
+    Parameters:
+        y_true (array-like): True labels.
+        y_pred (array-like): Predicted labels.
+        classes (list): List of class names.
+        title (str, optional): Title for the plot. Defaults to 'Confusion Matrix'.
+        cmap (str, optional): Colormap for the heatmap. Defaults to 'Blues'.
+    """
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap=cmap, xticklabels=classes, yticklabels=classes)
+    plt.title(title)
+    plt.xlabel('Predicted Label')
+    plt.ylabel('True Label')
     plt.show()

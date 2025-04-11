@@ -37,6 +37,7 @@ from tslearn.svm import TimeSeriesSVC
 
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import ConfusionMatrixDisplay, classification_report, RocCurveDisplay, auc, roc_curve, roc_auc_score
+from utils import plot_confusion_matrix
 
 #import load_data as ld
 
@@ -3662,6 +3663,7 @@ def pipeBuild_TimeSeriesSVC(C=[1.0],kernel=['gak'],degree=[3],gamma=['auto'],coe
 # CLASSIFICATON GRID BUILDER
 def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg_mean_squared_error',plot_number=10):
     # iterate over classifiers
+    classes=np.unique(y_train)
     for j in range(len(names)):
 
         grid_search = GridSearchCV(estimator=pipes[j][0], param_grid=pipes[j][1], scoring=scoring,cv=5, verbose=1, n_jobs=-1)
@@ -3672,6 +3674,7 @@ def gridsearch_classifier(names,pipes,X_train,X_test,y_train,y_test,scoring='neg
         y_pred = grid_search.predict(X_test)
         print(classification_report(y_test, y_pred))
         ConfusionMatrixDisplay.from_estimator(grid_search, X_test, y_test, xticks_rotation="vertical")
+        plot_confusion_matrix(y_test,y_pred,classes,f"{names[j]} Confusion Matrix")
                    
         n_classes = int(np.amax(y_test)+1) 
         x_axis = np.arange(len(X_test[0]))
