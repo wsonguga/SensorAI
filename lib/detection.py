@@ -217,10 +217,10 @@ def gridsearch_outlier(names,pipes,X,y,scoring='neg_mean_squared_error',plot_num
             new_noise_label = int(np.amax(labels)+1) # find the max label value
             labels = np.where(labels == -1, new_noise_label, labels)
 
-        print("Accuracy: ",accuracy_score(y_true, labels))
-        print("Precision: ")
-        print("F1 Score: ") 
-        print("Recall: ") 
+        #print("Accuracy: ",accuracy_score(y_true, labels))
+        #print("Precision: ")
+        #print("F1 Score: ") 
+        #print("Recall: ") 
 
         x_classes = int(np.amax(labels)+1)
         y_classes = int(np.amax(y)+1)
